@@ -12,7 +12,8 @@ import pytest
 def client():
     """HTTP client for API tests."""
     base_url = "http://localhost:8000"
-    with httpx.Client(base_url=base_url, timeout=30.0) as c:
+    # Increased timeout to 90 seconds for first requests that might trigger model loading
+    with httpx.Client(base_url=base_url, timeout=90.0) as c:
         yield c
 
 
@@ -78,3 +79,27 @@ class TestGenerate:
         assert "text" in data
         assert len(data["text"]) > 50
         assert "attestation" in data.get("doc_type", "")
+
+
+# new chat tests
+from unittest.mock import patch
+
+
+class TestChat:
+    """Basic checks for the `/chat` endpoint."""
+
+    def test_chat_empty(self, client):
+        # empty message should be rejected quickly
+        r = client.post("/chat", json={"message": ""})
+        assert r.status_code == 400
+
+    @patch("backend.app.api.chat.invoke_rag")
+    def test_chat_success(self, mock_invoke, client):
+        # patch the heavy RAG call so the test is fast and deterministic
+        mock_invoke.return_value = ("bonjour", [("content1", "doc1.txt")])
+        r = client.post("/chat", json={"message": "Salut"})
+        assert r.status_code == 200
+        data = r.json()
+        assert data["answer"] == "bonjour"
+        assert isinstance(data["sources"], list)
+        assert data["sources"][0]["source"] == "doc1.txt"

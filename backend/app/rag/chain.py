@@ -30,45 +30,67 @@ def format_docs(docs):
     return "\n\n---\n\n".join(doc.page_content for doc in docs)
 
 
+
+# cache chain and retriever so they are only created once
+_rag_chain = None
+_retriever = None
+
 def get_rag_chain():
-    """Build and return the RAG chain."""
+    """Build and return the RAG chain.
+
+    The chain and its underlying retriever (which in turn holds the
+    vectorstore) are expensive to initialise because they load a
+    sentence-transformers model and wire up the LLM.  We keep them in
+    module globals so repeated calls (e.g. for every `/chat` request)
+    are cheap.
+    """
+    global _rag_chain, _retriever
+    if _rag_chain is not None and _retriever is not None:
+        return _rag_chain, _retriever
+
     if not settings.GROQ_API_KEY or not settings.GROQ_API_KEY.strip():
         raise ValueError(
             "GROQ_API_KEY non configuré. Ajoutez votre clé dans le fichier .env"
         )
+
     vectorstore = get_vectorstore()
-    retriever = vectorstore.as_retriever(search_kwargs={"k": settings.TOP_K})
+    _retriever = vectorstore.as_retriever(search_kwargs={"k": settings.TOP_K})
 
     llm = ChatGroq(
         model=settings.LLM_MODEL,
         temperature=0.3,
         api_key=settings.GROQ_API_KEY,
+        timeout=settings.LLM_TIMEOUT,  # timeout for API calls
     )
 
     prompt = ChatPromptTemplate.from_template(SYSTEM_PROMPT)
 
-    chain = (
+    _rag_chain = (
         {
-            "context": retriever | format_docs,
+            "context": _retriever | format_docs,
             "question": RunnablePassthrough(),
         }
         | prompt
         | llm
         | StrOutputParser()
     )
-    return chain
+    return _rag_chain, _retriever
 
 
-def invoke_rag(question: str) -> tuple[str, list[tuple[str, str]]]:
+
+from typing import Tuple, List
+
+def invoke_rag(question: str) -> Tuple[str, List[tuple[str, str]]]:
     """
     Invoke RAG and return (answer, sources).
-    sources: list of (content, source_path)
+
+    ``sources`` is a list of ``(content, source_path)`` tuples.  The
+    function now reuses the cached chain and retriever created by
+    ``get_rag_chain`` to avoid rebuilding on each call.
     """
-    vectorstore = get_vectorstore()
-    retriever = vectorstore.as_retriever(search_kwargs={"k": settings.TOP_K})
+    chain, retriever = get_rag_chain()
     docs = retriever.invoke(question)
 
-    chain = get_rag_chain()
     answer = chain.invoke(question)
 
     sources = [
