@@ -11,6 +11,7 @@ A comprehensive university assistant with:
 
 import streamlit as st
 import requests
+import re
 from typing import Optional
 from datetime import datetime
 
@@ -42,7 +43,7 @@ body, .stApp {
 /* Hide Streamlit default elements */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
-header {visibility: hidden;}
+/* Keep header visible so the sidebar reopen control remains accessible */
 .stDeployButton {display: none;}
 .block-container {
     padding-top: 2rem !important;
@@ -64,8 +65,7 @@ section[data-testid="stSidebar"] {
     min-width: 280px !important; 
     max-width: 280px !important;
 }
-/* Hide sidebar toggle arrow */
-[data-testid="collapsedControl"] { display: none; }
+/* IMPORTANT: don't hide the collapsed sidebar control; otherwise sidebar can't be reopened */
 
 /* User profile card (top of sidebar) */
 .user-info-card {
@@ -360,6 +360,7 @@ hr, [data-testid="stSidebar"] hr {
     border-radius: 16px;
     padding: 40px;
     width: 100%;
+    max-width: 520px;
 }
 .auth-logo { font-size: 40px; text-align: center; margin-bottom: 16px; }
 .auth-title {
@@ -419,7 +420,7 @@ hr, [data-testid="stSidebar"] hr {
 # ============================================================================
 
 # API base URL
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "http://127.0.0.1:8000"
 
 # --- Session State Management ---
 def init_session_state():
@@ -603,7 +604,11 @@ def submit_feedback(
     )
     
     if not success:
-        error_msg = response.get("error") or "Feedback submission failed"
+        detail = response.get("detail")
+        if isinstance(detail, list) and detail:
+            error_msg = detail[0].get("msg", str(detail[0]))
+        else:
+            error_msg = detail or response.get("error") or "Feedback submission failed"
         st.error(f"Error: {error_msg}")
     return success
 
@@ -628,14 +633,19 @@ def get_feedback_stats() -> Optional[dict]:
     return response.get("data") if success else None
 
 
-def get_generate_types() -> Optional[list]:
-    """Get available document generation types."""
+def get_generate_types() -> Optional[dict]:
+    """Get available document types and field definitions. Returns {types: [...], fields_by_type: {...}} or None."""
     success, response = api_request(
         "GET",
         "/generate/types",
         token=st.session_state.token,
     )
-    return response.get("types") if success else []
+    if not success:
+        return None
+    return {
+        "types": response.get("types") or [],
+        "fields_by_type": response.get("fields_by_type") or {},
+    }
 
 
 def generate_document(doc_type: str, params: dict) -> Optional[dict]:
@@ -789,10 +799,10 @@ def page_chat():
         
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         
-        # Load recent conversations
+        # Load recent conversations (API returns {"data": [...], "pagination": ...})
         conv_data = get_conversations(limit=10)
-        if conv_data and conv_data.get("conversations"):
-            for conv in conv_data["conversations"]:
+        if conv_data and conv_data.get("data"):
+            for conv in conv_data["data"]:
                 is_active = (conv["id"] == st.session_state.current_conversation_id)
                 active_class = "active" if is_active else ""
                 
@@ -816,9 +826,10 @@ def page_chat():
     with st.container():
         if st.session_state.current_conversation_id:
             conv_data = get_conversation_messages(str(st.session_state.current_conversation_id))
-            if conv_data and conv_data.get("messages") and len(conv_data["messages"]) > 0:
+            messages_list = (conv_data.get("data") or {}).get("messages") or []
+            if messages_list:
                 messages_rendered = True
-                for msg in conv_data["messages"]:
+                for msg in messages_list:
                     if msg["role"] == "user":
                         st.markdown(f"""
                         <div class="message-user-wrap">
@@ -829,21 +840,65 @@ def page_chat():
                         </div>
                         """, unsafe_allow_html=True)
                     else:
+                        # Strip any model-generated "📎 Sources : ..." line; we render it only when sources exist.
+                        content = msg.get("content", "")
+                        content = re.sub(r"(?im)^\\s*📎\\s*Sources\\s*:.*$", "", content).strip()
+
                         st.markdown(f"""
                         <div class="message-assistant-wrap">
                             <div class="message-assistant">
                                 <div class="assistant-avatar">🤖</div>
-                                {msg['content']}
+                                {content}
                                 <div class="msg-timestamp-asst">Assistant</div>
                             </div>
                         </div>
                         """, unsafe_allow_html=True)
                         
                         if msg.get("sources"):
+                            names = []
+                            feedback_id = None
+                            for source in msg["sources"]:
+                                if isinstance(source, dict) and source.get("type") == "meta":
+                                    if source.get("name") in ("feedback_id", "chat_log_id"):
+                                        feedback_id = source.get("value")
+                                    continue
+
+                                name = source.get("name", source) if isinstance(source, dict) else source
+                                if name:
+                                    names.append(str(name))
+
+                            if feedback_id:
+                                st.markdown(
+                                    f"<div style='margin: -6px 0 10px 44px; color: #8B95A8; font-size: 12px;'>Feedback ID : <span style='color:#F0F2F8;'>{feedback_id}</span></div>",
+                                    unsafe_allow_html=True,
+                                )
+                                col_a, col_b = st.columns([3, 1])
+                                with col_a:
+                                    st.text_input(
+                                        "Feedback ID (copier-coller)",
+                                        value=feedback_id,
+                                        disabled=True,
+                                        label_visibility="collapsed",
+                                        key=f"fbid_{msg.get('id', feedback_id)}",
+                                    )
+                                with col_b:
+                                    if st.button("Utiliser", key=f"use_fbid_{msg.get('id', feedback_id)}"):
+                                        st.session_state.last_chat_log_id = feedback_id
+                                        st.toast("✅ Feedback ID sélectionné")
+
+                            if names:
+                                joined = " · ".join(names)
+                                st.markdown(
+                                    f"<div style='margin: -6px 0 10px 44px; color: #8B95A8; font-size: 12px;'>📎 Sources : {joined}</div>",
+                                    unsafe_allow_html=True,
+                                )
                             with st.expander(f"📎 {len(msg['sources'])} sources"):
                                 st.markdown('<div class="sources-content">', unsafe_allow_html=True)
                                 for source in msg["sources"]:
-                                    st.markdown(f'<span class="source-pill">{source}</span>', unsafe_allow_html=True)
+                                    if isinstance(source, dict) and source.get("type") == "meta":
+                                        continue
+                                    name = source.get("name", source) if isinstance(source, dict) else source
+                                    st.markdown(f'<span class="source-pill">{name}</span>', unsafe_allow_html=True)
                                 st.markdown('</div>', unsafe_allow_html=True)
                         
                         # Feedback buttons under assistant
@@ -875,6 +930,8 @@ def page_chat():
             result = send_message(prompt, st.session_state.current_conversation_id)
             if result:
                 st.session_state.current_conversation_id = result.get("conversation_id")
+                if result.get("chat_log_id"):
+                    st.session_state.last_chat_log_id = result.get("chat_log_id")
                 st.rerun()
 
 
@@ -932,74 +989,69 @@ def page_analytics():
         st.warning("⚠️ No analytics data available")
 
 def page_generate():
-    """Document generation page."""
+    """Document generation page with form fields customized per document type."""
     st.markdown("""
         <div class="main-header">
             <span style="color: #00D4AA; text-shadow: 0 0 10px #00D4AA44;">📄</span> Generate Documents
         </div>
-        <div class="header-subtitle">Create custom documents from your chat history</div>
+        <div class="header-subtitle">Create administrative documents with your information</div>
         <div class="header-divider" style="background: linear-gradient(90deg, #00D4AA, #6C63FF, transparent);"></div>
     """, unsafe_allow_html=True)
     
-    doc_types = get_generate_types()
-    
-    if not doc_types:
+    doc_data = get_generate_types()
+    if not doc_data or not doc_data.get("types"):
         st.error("❌ No document types available. Contact administrator.")
         return
     
-    st.info("📋 Select document type and format below")
+    doc_types = doc_data["types"]
+    fields_by_type = doc_data.get("fields_by_type") or {}
+    
+    st.info("📋 Select document type and fill the fields below (fields depend on the type)")
     st.divider()
     
-    # Document type selector and form
-    selected_type = st.selectbox("📋 Type de document *", doc_types, index=0)
-    
+    selected_type = st.selectbox("📋 Type de document *", doc_types, index=0, key="gen_doctype")
     st.divider()
     
     with st.form("generation_form"):
-        col_form1, col_form2 = st.columns(2)
-        
-        with col_form1:
-            nom_complet = st.text_input("👤 Nom complet *", placeholder="Jean Dupont")
-            type_attestation = st.text_input("📄 Type d'attestation", placeholder="Inscription (si pertinent)")
-            
-        with col_form2:
-            num_etudiant = st.text_input("🆔 N° étudiant *", placeholder="2024001234")
-            date_doc = st.text_input("📅 Date", value=datetime.today().strftime('%d/%m/%Y'))
-            
-        motif = st.text_area("📝 Motif (optionnel)", placeholder="Demande pour dossier CAF...")
+        fields = fields_by_type.get(selected_type, [])
+        form_values = {}
+        for f in fields:
+            label = f.get("label", f.get("key", ""))
+            if f.get("required"):
+                label = label + " *"
+            key_suffix = f"gen_{selected_type}_{f['key']}"
+            kind = f.get("kind") or "text"
+            placeholder = f.get("placeholder") or ""
+            if kind == "textarea":
+                form_values[f["key"]] = st.text_area(label, placeholder=placeholder, height=80, key=key_suffix)
+            else:
+                default = datetime.today().strftime('%d/%m/%Y') if kind == "date" else ""
+                form_values[f["key"]] = st.text_input(label, value=default, placeholder=placeholder, key=key_suffix)
         
         st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
         col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 2])
-        
         with col_btn1:
             generate_txt = st.form_submit_button("📄 Générer Texte", use_container_width=True)
         with col_btn2:
             generate_pdf_btn = st.form_submit_button("📕 Générer PDF", use_container_width=True)
-            
+    
     if generate_txt or generate_pdf_btn:
-        if not nom_complet or not num_etudiant:
-            st.error("❌ Le nom complet et le numéro étudiant sont obligatoires.")
+        required_keys = [f["key"] for f in fields_by_type.get(selected_type, []) if f.get("required")]
+        missing = [k for k in required_keys if not (form_values.get(k) or "").strip()]
+        if missing:
+            labels = {f["key"]: f.get("label", f["key"]) for f in fields_by_type.get(selected_type, [])}
+            st.error("❌ Champs obligatoires manquants : " + ", ".join(labels.get(k, k) for k in missing))
             return
-            
-        params = {
-            "nom_etudiant": nom_complet,
-            "numero_etudiant": num_etudiant,
-            "date": date_doc,
-            "motif": motif,
-        }
         
-        if type_attestation:
-            params["type_attestation"] = type_attestation
-            
+        params = {k: (v or "").strip() for k, v in form_values.items()}
+        
         if generate_txt:
             with st.spinner("✨ Génération du document texte..."):
                 result = generate_document(selected_type, params)
                 if result and "text" in result:
                     st.success(f"✅ {selected_type} généré avec succès !")
-                    
                     st.markdown("### ─── Aperçu ─────────────────────────────────────────────────────────────")
                     st.text_area("Aperçu:", value=result["text"], height=300, disabled=True, label_visibility="collapsed")
-                    
                     st.download_button(
                         label="⬇️ Télécharger TXT",
                         data=result["text"],
@@ -1007,23 +1059,21 @@ def page_generate():
                         mime="text/plain",
                         use_container_width=False
                     )
-                    
         elif generate_pdf_btn:
             with st.spinner("✨ Génération du PDF..."):
-                result = generate_pdf(selected_type, params)
-                if result:
+                pdf_result = generate_pdf(selected_type, params)
+                if pdf_result:
                     st.success(f"✅ {selected_type} PDF généré avec succès !")
-                    
                     st.download_button(
                         label="⬇️ Télécharger PDF",
-                        data=result,
+                        data=pdf_result,
                         file_name=f"{selected_type.lower().replace(' ', '_')}.pdf",
                         mime="application/pdf",
                         use_container_width=False
                     )
     
     st.divider()
-    st.info("💡 **Tip:** Documents are generated from your chat history. Use analytics to track generation usage.")
+    st.info("💡 **Tip:** Documents are generated from your inputs. Use analytics to track generation usage.")
 
 
 # ============================================================================
@@ -1042,7 +1092,12 @@ def page_feedback():
     st.markdown("### Submit Feedback<br/><span style='font-size: 14px; color: #8B95A8; font-weight: normal;'>Share your thoughts about a specific chat response</span>", unsafe_allow_html=True)
     
     with st.form("feedback_form"):
-        chat_log_id = st.text_input("🔍 Chat Log ID:", placeholder="Paste the ID from chat message")
+        default_log_id = st.session_state.get("last_chat_log_id", "")
+        chat_log_id = st.text_input(
+            "🔍 Feedback ID (Chat Log ID):",
+            value=default_log_id,
+            placeholder="From last chat response, or paste ID",
+        )
         
         col1, col2 = st.columns(2)
         with col1:
@@ -1063,7 +1118,7 @@ def page_feedback():
                 if submit_feedback(chat_log_id, rating, comment, correction, category):
                     st.rerun()
             else:
-                st.error("❌ Please provide a Chat Log ID")
+                st.error("❌ Please provide a Feedback ID")
     
     # Admin feedback review
     if st.session_state.user and st.session_state.user.get("role") == "admin":

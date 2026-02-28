@@ -46,6 +46,7 @@ class ChatResponse(BaseModel):
     sources: list[SourceInfo] = []
     conversation_id: str
     message_id: str
+    chat_log_id: str  # For feedback submission (analytics ChatLog id)
 
 
 @router.post("/", response_model=ChatResponse)
@@ -173,7 +174,10 @@ async def chat(
             conversation_id=conversation_id,
             role=MessageRole.ASSISTANT,
             content=answer,
-            sources=[{"name": s, "type": "document"} for s in source_names],
+            sources=(
+                [{"name": s, "type": "document"} for s in source_names]
+                + [{"type": "meta", "name": "feedback_id", "value": str(chat_log.id)}]
+            ),
         )
         
         # Log document access for analytics
@@ -199,6 +203,7 @@ async def chat(
             ],
             conversation_id=str(conversation_id),
             message_id=str(assistant_message.id),
+            chat_log_id=str(chat_log.id),
         )
         
     except HTTPException:

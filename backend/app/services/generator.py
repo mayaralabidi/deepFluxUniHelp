@@ -53,6 +53,33 @@ DEFAULT_PARAMS = {
     },
 }
 
+# Field definitions per doc_type for dynamic forms: key, label, required, placeholder, kind (text, textarea, date)
+FIELD_DEFINITIONS = {
+    "attestation": [
+        {"key": "nom", "label": "Nom complet", "required": True, "placeholder": "Jean Dupont", "kind": "text"},
+        {"key": "numero_etudiant", "label": "N° étudiant", "required": True, "placeholder": "2024001234", "kind": "text"},
+        {"key": "type_attestation", "label": "Type d'attestation", "required": False, "placeholder": "Inscription", "kind": "text"},
+        {"key": "date", "label": "Date", "required": False, "placeholder": "JJ/MM/AAAA", "kind": "date"},
+        {"key": "motif", "label": "Motif (optionnel)", "required": False, "placeholder": "Demande pour dossier CAF", "kind": "textarea"},
+    ],
+    "reclamation": [
+        {"key": "nom", "label": "Nom complet", "required": True, "placeholder": "Jean Dupont", "kind": "text"},
+        {"key": "numero_etudiant", "label": "N° étudiant", "required": True, "placeholder": "2024001234", "kind": "text"},
+        {"key": "matiere", "label": "Matière ou élément concerné", "required": True, "placeholder": "Mathématiques", "kind": "text"},
+        {"key": "description", "label": "Description du problème", "required": True, "placeholder": "Décrivez la situation...", "kind": "textarea"},
+        {"key": "pieces_jointes", "label": "Pièces jointes", "required": False, "placeholder": "Aucune", "kind": "text"},
+    ],
+    "convention_stage": [
+        {"key": "nom", "label": "Nom complet", "required": True, "placeholder": "Jean Dupont", "kind": "text"},
+        {"key": "numero_etudiant", "label": "N° étudiant", "required": True, "placeholder": "2024001234", "kind": "text"},
+        {"key": "entreprise", "label": "Nom de l'entreprise", "required": True, "placeholder": "Acme SARL", "kind": "text"},
+        {"key": "dates", "label": "Dates du stage (début - fin)", "required": True, "placeholder": "01/09/2024 - 31/12/2024", "kind": "text"},
+        {"key": "tuteur_entreprise", "label": "Tuteur entreprise", "required": False, "placeholder": "M. Dupont", "kind": "text"},
+        {"key": "referent_pedagogique", "label": "Référent pédagogique / Université", "required": False, "placeholder": "Mme Martin", "kind": "text"},
+        {"key": "description", "label": "Description du stage", "required": False, "placeholder": "Mission, objectifs...", "kind": "textarea"},
+    ],
+}
+
 
 def generate_document(doc_type: str, **kwargs) -> str:
     """

@@ -8,7 +8,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.services.generator import generate_document, PROMPTS
+from backend.app.services.generator import generate_document, PROMPTS, FIELD_DEFINITIONS
 from backend.app.services.pdf_export import text_to_pdf
 from backend.app.core.database import get_db
 from backend.app.core.dependencies import get_current_user
@@ -141,5 +141,8 @@ async def generate_pdf(
 
 @router.get("/types")
 async def list_types(current_user: User = Depends(get_current_user)):
-    """List available document types. Requires authentication."""
-    return {"types": list(PROMPTS.keys())}
+    """List available document types and their form field definitions. Requires authentication."""
+    return {
+        "types": list(PROMPTS.keys()),
+        "fields_by_type": FIELD_DEFINITIONS,
+    }

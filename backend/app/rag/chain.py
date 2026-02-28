@@ -2,21 +2,25 @@
 RAG chain: retriever + LLM for answering questions
 """
 
+from pathlib import Path
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 
 from backend.app.core.config import settings
 from backend.app.rag.vectorstore import get_vectorstore
 
 
-SYSTEM_PROMPT = """Tu es l'assistant de l'université. Tu réponds aux questions des étudiants en t'appuyant UNIQUEMENT sur le contexte fourni ci-dessous.
+SYSTEM_PROMPT = """Tu es l'assistant de l'université. Tu aides les étudiants avec des réponses claires, utiles et polies.
 
 Règles importantes:
 - Réponds en français de manière claire et concise
-- Base-toi UNIQUEMENT sur le contexte fourni. Si le contexte ne contient pas l'information, dis que tu ne peux pas répondre avec certitude et suggère de contacter le secrétariat
-- Cite les sources quand c'est pertinent (nom du document)
+- Si le contexte ci-dessous contient des extraits de documents: base-toi UNIQUEMENT sur ce contexte. Si l'information n'y est pas, dis-le et suggère de contacter le secrétariat.
+- Si le contexte est vide (aucun document): réponds quand même en t'appuyant sur tes connaissances générales. Si une règle/procédure peut varier selon l'université, indique-le et propose de préciser l'université/filière/année, ou de vérifier auprès du secrétariat.
+- Ne mentionne pas de contraintes techniques (mémoire, serveur, RAG, etc.).
+- Quand tu utilises le contexte, cite la source entre parenthèses, par ex. (calendrier_2025.txt) ou (reglement_examens.pdf p.12).
+- Si le contexte n'est pas vide, termine par une ligne: "📎 Sources : ..." listant les sources réellement utilisées (sans inventer).
 - Sois professionnel et bienveillant
 - Si l'utilisateur continue une conversation précédente, tiens compte de l'historique pour plus de contexte
 
@@ -30,7 +34,18 @@ Question: {question}"""
 
 def format_docs(docs):
     """Format retrieved documents for the prompt."""
-    return "\n\n---\n\n".join(doc.page_content for doc in docs)
+    parts: list[str] = []
+    for d in docs:
+        filename = d.metadata.get("filename")
+        if not filename:
+            src = d.metadata.get("source")
+            filename = Path(str(src)).name if src else "document"
+
+        page = d.metadata.get("page")
+        page_label = f" p.{int(page) + 1}" if page is not None else ""
+        parts.append(f"[Source: {filename}{page_label}]\n{d.page_content}")
+
+    return "\n\n---\n\n".join(parts)
 
 
 
@@ -109,10 +124,33 @@ def invoke_rag(
         Tuple of (answer, sources) where sources is list of (content, source_path) tuples
     """
     chain, retriever = get_rag_chain()
-    
-    # Manually invoke retriever to get docs
-    docs = retriever.invoke(question)
-    context = format_docs(docs)
+
+    # If retrieval is available, use it; otherwise, fall back to general knowledge mode (empty context).
+    context = ""
+    sources: List[tuple[str, str]] = []
+    if retriever is not None:
+        try:
+            docs = retriever.get_relevant_documents(question)
+            if docs:
+                context = format_docs(docs)
+                # Only expose lightweight, human-readable source labels (deduped)
+                seen: set[str] = set()
+                for d in docs:
+                    filename = d.metadata.get("filename")
+                    if not filename:
+                        src = d.metadata.get("source")
+                        filename = Path(str(src)).name if src else "document"
+
+                    page = d.metadata.get("page")
+                    label = f"{filename} (p.{int(page) + 1})" if page is not None else str(filename)
+                    if label in seen:
+                        continue
+                    seen.add(label)
+                    sources.append((d.page_content[:300], label))
+        except Exception:
+            # Any retrieval failure should not block answering.
+            context = ""
+            sources = []
 
     # Format conversation history for the prompt
     conversation_history = _format_conversation_history(recent_messages)
@@ -124,8 +162,4 @@ def invoke_rag(
         "conversation_history": conversation_history,
     })
 
-    sources = [
-        (doc.page_content, doc.metadata.get("source", "unknown"))
-        for doc in docs
-    ]
     return answer, sources

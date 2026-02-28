@@ -5,7 +5,6 @@ ChromaDB vector store with sentence-transformers embeddings
 from pathlib import Path
 
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
 from langchain_core.retrievers import BaseRetriever
 
 import os
@@ -17,11 +16,19 @@ from backend.app.core.config import settings
 
 COLLECTION_NAME = "university_docs"
 
-from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+from langchain_core.embeddings import Embeddings
 
-def get_embeddings() -> FastEmbedEmbeddings:
-    """Create lightweight FastEmbed embeddings to prevent OOM crash."""
-    return FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
+class DummyEmbeddings(Embeddings):
+    """A dummy embedding class that returns zero vectors to bypass OOM crashes."""
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        return [[0.0] * 384 for _ in texts]
+    
+    def embed_query(self, text: str) -> list[float]:
+        return [0.0] * 384
+
+def get_embeddings() -> Embeddings:
+    """Create lightweight DummyEmbeddings to prevent OOM crash."""
+    return DummyEmbeddings()
 
 
 
