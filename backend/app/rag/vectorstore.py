@@ -5,8 +5,8 @@ ChromaDB vector store with sentence-transformers embeddings
 from pathlib import Path
 
 from langchain_chroma import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_core.schema import BaseRetriever
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_core.retrievers import BaseRetriever
 
 import os
 os.environ["OMP_NUM_THREADS"] = "1"
