@@ -414,6 +414,9 @@ hr, [data-testid="stSidebar"] hr {
 .metric-label-new { font-size: 0.9em; color: #8B95A8; margin-top: 5px; }
 
 .stDataFrame { background-color: #161B27; }
+
+/* Hide "Press Enter to submit form" hint on all inputs */
+[data-testid="InputInstructions"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -421,8 +424,9 @@ hr, [data-testid="stSidebar"] hr {
 # CONSTANTS & CONFIGURATION
 # ============================================================================
 
-# API base URL
-API_BASE_URL = "http://127.0.0.1:8000"
+# API base URL - allow override via env var for production
+import os
+API_BASE_URL = os.getenv("UNIHELP_API_URL", "http://127.0.0.1:8000")
 
 # --- Session State Management ---
 def init_session_state():
@@ -704,17 +708,17 @@ def page_login():
             <div style="text-align:center; font-size:26px; font-weight:800;
                         background:linear-gradient(135deg,#6C63FF,#00D4AA);
                         -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-                        margin-bottom:6px;">deepFluxUniHelp</div>
+                        margin-bottom:6px;">UniHelp</div>
             <div style="text-align:center; font-size:13px; color:#8B95A8; margin-bottom:28px;">
                 University Administrative Assistant
             </div>
         """, unsafe_allow_html=True)
 
         with st.form("login_form"):
-            email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
-            password = st.text_input("🔐 Password", type="password")
+            email = st.text_input("Email Address", placeholder="your.email@university.edu")
+            password = st.text_input("Password", type="password")
 
-            submitted = st.form_submit_button("🔓 Login", use_container_width=True, type="primary")
+            submitted = st.form_submit_button("Login", use_container_width=True, type="primary")
 
             if submitted and email and password:
                 if login(email, password):
@@ -723,7 +727,7 @@ def page_login():
         st.divider()
 
         st.markdown("<div style='text-align:center; font-size:14px; color:#8B95A8; margin-bottom:8px;'>Don't have an account?</div>", unsafe_allow_html=True)
-        if st.button("📝 Create Account", use_container_width=True):
+        if st.button("Create Account", use_container_width=True):
             st.session_state.auth_page = "register"
             st.rerun()
 
@@ -742,19 +746,19 @@ def page_register():
             <div style="text-align:center; font-size:26px; font-weight:800;
                         background:linear-gradient(135deg,#6C63FF,#00D4AA);
                         -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-                        margin-bottom:6px;">deepFluxUniHelp</div>
+                        margin-bottom:6px;">UniHelp</div>
             <div style="text-align:center; font-size:13px; color:#8B95A8; margin-bottom:28px;">
                 University Administrative Assistant
             </div>
         """, unsafe_allow_html=True)
 
         with st.form("register_form"):
-            email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
-            full_name = st.text_input("👤 Full Name", placeholder="John Doe")
-            password = st.text_input("🔐 Password", type="password", help="Minimum 8 characters")
-            password_confirm = st.text_input("🔐 Confirm Password", type="password")
+            email = st.text_input("Email Address", placeholder="your.email@university.edu")
+            full_name = st.text_input("Full Name", placeholder="John Doe")
+            password = st.text_input("Password", type="password", help="Minimum 8 characters")
+            password_confirm = st.text_input("Confirm Password", type="password")
 
-            submitted = st.form_submit_button("✅ Register", use_container_width=True, type="primary")
+            submitted = st.form_submit_button("Register", use_container_width=True, type="primary")
 
             if submitted:
                 if not email or not full_name or not password:
@@ -770,7 +774,7 @@ def page_register():
         st.divider()
 
         st.markdown("<div style='text-align:center; font-size:14px; color:#8B95A8; margin-bottom:8px;'>Already have an account?</div>", unsafe_allow_html=True)
-        if st.button("🔑 Back to Login", use_container_width=True):
+        if st.button("Back to Login", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
 
@@ -792,9 +796,7 @@ def page_auth():
 def page_chat():
     """Main chat interface."""
     st.markdown("""
-        <div class="main-header">
-            <span style="color: #6C63FF; text-shadow: 0 0 10px #6C63FF44;">💬</span> Chat with Assistant
-        </div>
+        <div class="main-header">Chat with Assistant</div>
         <div class="header-subtitle">Ask questions and get answers powered by your university documents</div>
         <div class="header-divider"></div>
     """, unsafe_allow_html=True)
@@ -803,7 +805,7 @@ def page_chat():
     with st.sidebar:
         st.markdown('<div class="section-label">Conversations</div>', unsafe_allow_html=True)
         
-        if st.button("➕ New Conversation", key="new_conv", use_container_width=True, type="primary"):
+        if st.button("New Conversation", key="new_conv", use_container_width=True, type="primary"):
             st.session_state.current_conversation_id = None
             st.session_state.messages = []
             st.rerun()
@@ -819,7 +821,7 @@ def page_chat():
                 
                 col1, col2, col3 = st.columns([4, 1, 1])
                 with col1:
-                    if st.button(f"💬 {conv['title'][:20]}", key=f"conv_{conv['id']}", use_container_width=True):
+                    if st.button(f"{conv['title'][:20]}", key=f"conv_{conv['id']}", use_container_width=True):
                         st.session_state.current_conversation_id = conv["id"]
                         st.rerun()
                 with col2:
@@ -837,7 +839,7 @@ def page_chat():
                 if st.session_state.get(f"show_id_{conv['id']}", False):
                     st.code(conv["id"], language=None)
         else:
-            st.markdown("<div style='font-size: 12px; color: #4A5568;'><br/>📭 No conversations yet.</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 12px; color: #4A5568;'><br/>No conversations yet.</div>", unsafe_allow_html=True)
     
     # Message display area
     st.markdown('<div class="chat-container">', unsafe_allow_html=True)
@@ -888,27 +890,34 @@ def page_chat():
                                     names.append(str(name))
 
                             if feedback_id:
+                                st.markdown(
+                                    "<div style='margin: 4px 0 2px 44px; color: #8B95A8; font-size: 11px;'>"
+                                    "<b>Feedback ID</b> — use this in the Feedback page to rate this response"
+                                    "</div>",
+                                    unsafe_allow_html=True,
+                                )
                                 col_a, col_b = st.columns([3, 1])
                                 with col_a:
                                     st.text_input(
-                                        "Feedback ID (copier-coller)",
+                                        "Feedback ID",
                                         value=feedback_id,
                                         disabled=True,
                                         label_visibility="collapsed",
                                         key=f"fbid_{msg.get('id', feedback_id)}",
                                     )
                                 with col_b:
-                                    if st.button("Utiliser", key=f"use_fbid_{msg.get('id', feedback_id)}"):
+                                    if st.button("Use", key=f"use_fbid_{msg.get('id', feedback_id)}",
+                                                 help="Send this Feedback ID to the Feedback page"):
                                         st.session_state.last_chat_log_id = feedback_id
-                                        st.toast("✅ Feedback ID sélectionné")
+                                        st.toast("✅ Feedback ID selected — go to the Feedback page to submit")
 
                             if names:
                                 joined = " · ".join(names)
                                 st.markdown(
-                                    f"<div style='margin: -6px 0 10px 44px; color: #8B95A8; font-size: 12px;'>📎 Sources : {joined}</div>",
+                                    f"<div style='margin: -6px 0 10px 44px; color: #8B95A8; font-size: 12px;'>Sources: {joined}</div>",
                                     unsafe_allow_html=True,
                                 )
-                            with st.expander(f"📎 {len(msg['sources'])} sources"):
+                            with st.expander(f"{len(msg['sources'])} sources"):
                                 st.markdown('<div class="sources-content">', unsafe_allow_html=True)
                                 for source in msg["sources"]:
                                     if isinstance(source, dict) and source.get("type") == "meta":
@@ -942,7 +951,7 @@ def page_chat():
     prompt = st.chat_input("💬 Ask anything about university documents...")
     
     if prompt:
-        with st.spinner("🔄 Thinking..."):
+        with st.spinner("Thinking..."):
             result = send_message(prompt, st.session_state.current_conversation_id)
             if result:
                 st.session_state.current_conversation_id = result.get("conversation_id")
@@ -957,9 +966,7 @@ def page_chat():
 def page_analytics():
     """Analytics dashboard (staff+ only)."""
     st.markdown("""
-        <div class="main-header">
-            <span style="color: #00D4AA; text-shadow: 0 0 10px #00D4AA44;">📊</span> Analytics Dashboard
-        </div>
+        <div class="main-header">Analytics Dashboard</div>
         <div class="header-subtitle">Track usage and performance metrics</div>
         <div class="header-divider" style="background: linear-gradient(90deg, #00D4AA, #6C63FF, transparent);"></div>
     """, unsafe_allow_html=True)
@@ -972,12 +979,12 @@ def page_analytics():
     # Time period selector
     col1, col2, col3 = st.columns(3)
     with col1:
-        days = st.selectbox("📅 Time Period:", [7, 30, 90], index=0, format_option=lambda x: f"Last {x} days")
+        days = st.selectbox("Time Period:", [7, 30, 90], index=0, format_option=lambda x: f"Last {x} days")
     
     st.divider()
     
     # Get analytics
-    with st.spinner("📊 Loading metrics..."):
+    with st.spinner("Loading metrics..."):
         stats = get_analytics_summary(days=days)
     
     if stats:
@@ -1007,9 +1014,7 @@ def page_analytics():
 def page_generate():
     """Document generation page with form fields customized per document type."""
     st.markdown("""
-        <div class="main-header">
-            <span style="color: #00D4AA; text-shadow: 0 0 10px #00D4AA44;">📄</span> Generate Documents
-        </div>
+        <div class="main-header">Generate Documents</div>
         <div class="header-subtitle">Create administrative documents with your information</div>
         <div class="header-divider" style="background: linear-gradient(90deg, #00D4AA, #6C63FF, transparent);"></div>
     """, unsafe_allow_html=True)
@@ -1022,10 +1027,10 @@ def page_generate():
     doc_types = doc_data["types"]
     fields_by_type = doc_data.get("fields_by_type") or {}
     
-    st.info("📋 Select document type and fill the fields below (fields depend on the type)")
+    st.info("Select document type and fill the fields below (fields depend on the type)")
     st.divider()
     
-    selected_type = st.selectbox("📋 Type de document *", doc_types, index=0, key="gen_doctype")
+    selected_type = st.selectbox("Type de document *", doc_types, index=0, key="gen_doctype")
     st.divider()
     
     with st.form("generation_form"):
@@ -1047,9 +1052,9 @@ def page_generate():
         st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
         col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 2])
         with col_btn1:
-            generate_txt = st.form_submit_button("📄 Générer Texte", use_container_width=True)
+            generate_txt = st.form_submit_button("Générer Texte", use_container_width=True)
         with col_btn2:
-            generate_pdf_btn = st.form_submit_button("📕 Générer PDF", use_container_width=True)
+            generate_pdf_btn = st.form_submit_button("Générer PDF", use_container_width=True)
     
     if generate_txt or generate_pdf_btn:
         required_keys = [f["key"] for f in fields_by_type.get(selected_type, []) if f.get("required")]
@@ -1062,26 +1067,26 @@ def page_generate():
         params = {k: (v or "").strip() for k, v in form_values.items()}
         
         if generate_txt:
-            with st.spinner("✨ Génération du document texte..."):
+            with st.spinner("Génération du document texte..."):
                 result = generate_document(selected_type, params)
                 if result and "text" in result:
                     st.success(f"✅ {selected_type} généré avec succès !")
                     st.markdown("### ─── Aperçu ─────────────────────────────────────────────────────────────")
                     st.text_area("Aperçu:", value=result["text"], height=300, disabled=True, label_visibility="collapsed")
                     st.download_button(
-                        label="⬇️ Télécharger TXT",
+                        label="Télécharger TXT",
                         data=result["text"],
                         file_name=f"{selected_type.lower().replace(' ', '_')}.txt",
                         mime="text/plain",
                         use_container_width=False
                     )
         elif generate_pdf_btn:
-            with st.spinner("✨ Génération du PDF..."):
+            with st.spinner("Génération du PDF..."):
                 pdf_result = generate_pdf(selected_type, params)
                 if pdf_result:
                     st.success(f"✅ {selected_type} PDF généré avec succès !")
                     st.download_button(
-                        label="⬇️ Télécharger PDF",
+                        label="Télécharger PDF",
                         data=pdf_result,
                         file_name=f"{selected_type.lower().replace(' ', '_')}.pdf",
                         mime="application/pdf",
@@ -1089,7 +1094,7 @@ def page_generate():
                     )
     
     st.divider()
-    st.info("💡 **Tip:** Documents are generated from your inputs. Use analytics to track generation usage.")
+    st.info("**Tip:** Documents are generated from your inputs. Use analytics to track generation usage.")
 
 
 # ============================================================================
@@ -1098,43 +1103,49 @@ def page_generate():
 def page_feedback():
     """Feedback system."""
     st.markdown("""
-        <div class="main-header">
-            <span style="color: #FF4757; text-shadow: 0 0 10px #FF475744;">📝</span> Feedback System
-        </div>
+        <div class="main-header">Feedback System</div>
         <div class="header-subtitle">Help us improve by providing feedback on responses</div>
         <div class="header-divider" style="background: linear-gradient(90deg, #FF4757, #6C63FF, transparent);"></div>
     """, unsafe_allow_html=True)
     
     st.markdown("### Submit Feedback<br/><span style='font-size: 14px; color: #8B95A8; font-weight: normal;'>Share your thoughts about a specific chat response</span>", unsafe_allow_html=True)
     
+
+    st.info(
+        "**How to get the Feedback ID:** Go to **Chat**, find the assistant reply you want to rate, "
+        "copy the **Feedback ID** shown below that message, then paste it here.  \n"
+        "⚠️ The **conversation ID** (📋 in the sidebar) is **not** the same as the Feedback ID."
+    )
+
     with st.form("feedback_form"):
         default_log_id = st.session_state.get("last_chat_log_id", "")
         chat_log_id = st.text_input(
-            "🔍 Feedback ID (Chat Log ID):",
+            "Feedback ID (from the assistant message):",
             value=default_log_id,
-            placeholder="From last chat response, or paste ID",
+            placeholder="Paste the Feedback ID from beneath an assistant reply",
         )
         
         col1, col2 = st.columns(2)
         with col1:
             rating = st.radio(
-                "👍 How was this response?",
+                "How was this response?",
                 [1, -1],
-                format_func=lambda x: "👍 Helpful" if x == 1 else "👎 Not Helpful",
+                format_func=lambda x: "Helpful" if x == 1 else "Not Helpful",
             )
         
         with col2:
-            category = st.selectbox("📂 Category:", 
+            category = st.selectbox("Category:", 
                                    ["wrong_answer", "incomplete", "outdated", "other"])
         
-        comment = st.text_area("💬 Comment (optional):", max_chars=500, placeholder="Tell us what you think...")
-        correction = st.text_area("✏️ Correction (optional):", max_chars=1000, placeholder="Suggest a correction...")
+        comment = st.text_area("Comment (optional):", max_chars=500, placeholder="Tell us what you think...")
+        correction = st.text_area("Correction (optional):", max_chars=1000, placeholder="Suggest a correction...")
         
-        submitted = st.form_submit_button("📤 Submit Feedback", use_container_width=True, type="primary")
+        submitted = st.form_submit_button("Submit Feedback", use_container_width=True, type="primary")
         
         if submitted:
             if chat_log_id:
                 if submit_feedback(chat_log_id, rating, comment, correction, category):
+                    st.toast("✅ Thank you! Your feedback was submitted successfully.", icon="🎉")
                     st.rerun()
             else:
                 st.error("❌ Please provide a Feedback ID")
@@ -1252,14 +1263,14 @@ def show_navigation():
         
         # Build menu items
         menu_items = {
-            "💬 Chat": "chat",
-            "📄 Generate": "generate",
-            "📝 Feedback": "feedback",
+            "Chat": "chat",
+            "Generate": "generate",
+            "Feedback": "feedback",
         }
         
         # Add analytics only for staff+
         if st.session_state.user and st.session_state.user.get("role") != "student":
-            menu_items["📊 Analytics"] = "analytics"
+            menu_items["Analytics"] = "analytics"
         
         for label, page_id in menu_items.items():
             is_active = st.session_state.page == page_id
@@ -1272,7 +1283,7 @@ def show_navigation():
         st.divider()
         
         # Logout button
-        if st.button("🚪 Logout", use_container_width=True, type="secondary"):
+        if st.button("Logout", use_container_width=True, type="secondary"):
             st.session_state.token = None
             st.session_state.user = None
             st.rerun()
