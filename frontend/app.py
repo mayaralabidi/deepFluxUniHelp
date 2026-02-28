@@ -1,6 +1,6 @@
 """
 deepFluxUniHelp - Frontend (Streamlit)
-Interface utilisateur
+Assistant IA pour la vie étudiante universitaire
 """
 
 import os
@@ -16,13 +16,155 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-st.title("🎓 deepFluxUniHelp")
-st.caption("Assistant IA pour la vie étudiante universitaire")
+# Modern, elegant styling
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Main container */
+    .main {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    
+    /* Headers */
+    h1 { color: #1e3a8a; font-weight: 700; }
+    h2 { color: #1e40af; font-weight: 600; }
+    h3 { color: #1e40af; font-weight: 600; }
+    
+    /* Cards */
+    .stContainer {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        padding: 25px;
+    }
+    
+    /* Buttons */
+    .stButton > button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Download button */
+    .stDownloadButton > button {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .stDownloadButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
+    }
+    
+    /* Inputs */
+    .stTextInput > div > div > input,
+    .stSelectbox > div > div > div,
+    .stTextArea > div > textarea {
+        border: 2px solid #e0e7ff !important;
+        border-radius: 8px !important;
+    }
+    
+    .stTextInput > div > div > input:focus,
+    .stSelectbox > div > div > div:focus,
+    .stTextArea > div > textarea:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    /* Sidebar */
+    .stSidebar {
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stSidebar [data-testid="stSidebarNav"] { background: transparent; }
+    .stSidebar h1, .stSidebar h2, .stSidebar h3 { color: white; }
+    .stSidebar label { color: white !important; font-weight: 500; }
+    .stSidebar .stMarkdown { color: rgba(255, 255, 255, 0.9); }
+    
+    /* Chat messages */
+    .stChatMessage {
+        border-radius: 12px;
+        padding: 15px;
+    }
+    
+    /* Messages styling */
+    [data-testid="chatMessageUser"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    [data-testid="chatMessageAssistant"] {
+        background: #f0f4ff;
+        border-left: 4px solid #667eea;
+    }
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        color: #667eea;
+        border-bottom: 3px solid #667eea !important;
+    }
+    
+    /* Alerts */
+    .stAlert { border-radius: 8px; }
+    
+    .stSuccess {
+        background-color: rgba(16, 185, 129, 0.1) !important;
+        border-left: 4px solid #10b981 !important;
+    }
+    
+    .stError {
+        background-color: rgba(245, 87, 108, 0.1) !important;
+        border-left: 4px solid #f5576c !important;
+    }
+    
+    .stWarning {
+        background-color: rgba(251, 146, 60, 0.1) !important;
+        border-left: 4px solid #fb923c !important;
+    }
+    
+    .stInfo {
+        background-color: rgba(102, 126, 234, 0.1) !important;
+        border-left: 4px solid #667eea !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-st.sidebar.header("Navigation")
+# Header with gradient
+col1, col2 = st.columns([1, 0.3])
+with col1:
+    st.markdown("<h1>🎓 deepFluxUniHelp</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #666; font-size: 16px; margin-top: -10px;'>Ton assistant IA pour l'université</p>", unsafe_allow_html=True)
+
+st.markdown("---")
+
+st.sidebar.markdown("## 📍 Navigation", unsafe_allow_html=True)
 page = st.sidebar.radio(
-    "Section",
-    ["Chat", "Générer un document", "À propos"],
+    "Sections",
+    ["💬 Chat", "📄 Documents", "ℹ️ À propos"],
     index=0,
 )
 
@@ -60,14 +202,12 @@ def download_pdf(doc_type: str, params: dict) -> bytes:
         return r.content
 
 
-if page == "Chat":
-    st.subheader("Assistant Chat")
-    st.markdown("Posez vos questions sur l'inscription, les attestations, les stages, etc.")
+if page == "💬 Chat":
+    st.markdown("### 💬 Pose ta question")
+    st.markdown("Question sur l'inscription, les attestations, les stages, bourses, rattrapages... On t'aide! 🚀")
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
-    if "sources" not in st.session_state:
-        st.session_state.sources = []
 
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
@@ -75,16 +215,15 @@ if page == "Chat":
             if msg.get("sources"):
                 with st.expander("📎 Sources"):
                     for s in msg["sources"]:
-                        st.caption(f"**{s.get('source', '')}**")
-                        st.text(s.get("content", "")[:200] + "..." if len(s.get("content", "")) > 200 else s.get("content", ""))
+                        st.caption(f"• {s.get('source', '').split('/')[-1]}")
 
-    if prompt := st.chat_input("Posez votre question..."):
+    if prompt := st.chat_input("✏️ Écris ta question..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
-            with st.spinner("Recherche..."):
+            with st.spinner("🔍 Recherche en cours..."):
                 try:
                     resp = call_chat(prompt, [])
                     answer = resp.get("answer", "")
@@ -93,10 +232,8 @@ if page == "Chat":
                     if sources:
                         with st.expander("📎 Sources"):
                             for s in sources:
-                                src = s.get("source", "unknown")
-                                content = s.get("content", "")[:300]
-                                st.caption(f"**{src.split('/')[-1]}**")
-                                st.text(content + ("..." if len(s.get("content", "")) > 300 else ""))
+                                src = s.get("source", "").split('/')[-1]
+                                st.caption(f"• {src}")
                     st.session_state.messages.append({
                         "role": "assistant",
                         "content": answer,
@@ -111,92 +248,86 @@ if page == "Chat":
                         except Exception:
                             if e.response.text:
                                 err_msg = e.response.text[:500]
-                    st.error(f"Erreur: {err_msg}")
+                    st.error(f"❌ Erreur: {err_msg}")
 
-elif page == "Générer un document":
-    st.subheader("Générer un document administratif")
+elif page == "📄 Documents":
+    st.markdown("### 📄 Générer un document")
+    st.markdown("Crée facilement tes attestations, réclamations et conventions de stage 📝")
 
     doc_type = st.selectbox(
-        "Type de document",
+        "📋 Quel document tu veux créer?",
         ["attestation", "reclamation", "convention_stage"],
         format_func=lambda x: {
-            "attestation": "Demande d'attestation",
-            "reclamation": "Demande de réclamation",
-            "convention_stage": "Demande de convention de stage",
+            "attestation": "📜 Attestation (inscription, scolarité, assiduité...)",
+            "reclamation": "⚠️ Réclamation",
+            "convention_stage": "🤝 Convention de stage",
         }[x],
     )
 
+    st.markdown("---")
+
+    col1, col2 = st.columns(2)
+
     if doc_type == "attestation":
-        col1, col2 = st.columns(2)
         with col1:
-            nom = st.text_input("Nom complet *", "")
-            numero_etudiant = st.text_input("Numéro étudiant *", "")
-            type_attestation = st.selectbox(
-                "Type d'attestation",
-                ["Inscription", "Scolarité", "Assiduité", "Notes"],
-            )
+            st.markdown("**📋 Infos obligatoires**")
+            nom = st.text_input("👤 Nom complet", placeholder="Jean Dupont")
+            numero_etudiant = st.text_input("🆔 N° étudiant", placeholder="23456789")
+            type_attestation = st.selectbox("📄 Type", ["Inscription", "Scolarité", "Assiduité", "Notes"])
         with col2:
-            motif = st.text_input("Motif (ex: CAF, sécurité sociale)", "")
-            date = st.text_input("Date", placeholder="Ex: 27/02/2025")
+            st.markdown("**📝 Détails**")
+            motif = st.text_input("💬 Motif", placeholder="CAF, Sécurité sociale...")
+            date = st.text_input("📅 Date", placeholder="27/02/2025")
 
     elif doc_type == "reclamation":
-        col1, col2 = st.columns(2)
         with col1:
-            nom = st.text_input("Nom complet *", "")
-            numero_etudiant = st.text_input("Numéro étudiant *", "")
-            matiere = st.text_input("Matière / élément concerné *", "")
+            st.markdown("**📋 Infos obligatoires**")
+            nom = st.text_input("👤 Nom complet", placeholder="Jean Dupont")
+            numero_etudiant = st.text_input("🆔 N° étudiant", placeholder="23456789")
+            matiere = st.text_input("📚 Matière", placeholder="Mathématiques, Physique...")
         with col2:
-            description = st.text_area("Description du problème *", "")
-            pieces_jointes = st.text_input("Pièces jointes", "")
+            st.markdown("**📝 Description**")
+            description = st.text_area("📝 Détaille ton problème", placeholder="Explique ce qui s'est passé...")
+            pieces_jointes = st.text_input("📎 Pièces jointes", placeholder="Notes, documents...")
 
     else:
-        col1, col2 = st.columns(2)
         with col1:
-            nom = st.text_input("Nom complet *", "")
-            numero_etudiant = st.text_input("Numéro étudiant *", "")
-            entreprise = st.text_input("Entreprise d'accueil *", "")
-            dates = st.text_input("Dates du stage *", placeholder="Ex: du 1er mars au 30 avril 2025")
-            tuteur_entreprise = st.text_input("Tuteur entreprise", "")
+            st.markdown("**📋 Infos obligatoires**")
+            nom = st.text_input("👤 Nom complet", placeholder="Jean Dupont")
+            numero_etudiant = st.text_input("🆔 N° étudiant", placeholder="23456789")
+            entreprise = st.text_input("🏢 Entreprise", placeholder="Google, Microsoft...")
+            dates = st.text_input("📅 Dates", placeholder="1er juin - 30 août 2025")
         with col2:
-            referent_pedagogique = st.text_input("Référent pédagogique", "")
-            description = st.text_area("Description du stage", "")
+            st.markdown("**👥 Contacts**")
+            tuteur_entreprise = st.text_input("👨‍💼 Tuteur entreprise", placeholder="Jean Martin")
+            referent_pedagogique = st.text_input("👨‍🏫 Référent", placeholder="Prof. Sophie Bernard")
+            description = st.text_area("📝 Description du stage", placeholder="Ce que tu vas faire...")
 
-    if st.button("Générer"):
+    st.markdown("---")
+    if st.button("⚡ Générer mon document", use_container_width=True):
         if not nom.strip() or not numero_etudiant.strip():
-            st.warning("Veuillez remplir le nom et le numéro étudiant (champs obligatoires).")
+            st.warning("⚠️ Complète le nom et le N° étudiant!")
         else:
             if doc_type == "attestation":
-                params = {
-                    "nom": nom, "numero_etudiant": numero_etudiant,
-                    "type_attestation": type_attestation, "motif": motif, "date": date,
-                }
+                params = {"nom": nom, "numero_etudiant": numero_etudiant, "type_attestation": type_attestation, "motif": motif, "date": date}
             elif doc_type == "reclamation":
-                params = {
-                    "nom": nom, "numero_etudiant": numero_etudiant,
-                    "matiere": matiere, "description": description,
-                    "pieces_jointes": pieces_jointes or "Aucune",
-                }
+                params = {"nom": nom, "numero_etudiant": numero_etudiant, "matiere": matiere, "description": description, "pieces_jointes": pieces_jointes or "Aucune"}
             else:
-                params = {
-                    "nom": nom, "numero_etudiant": numero_etudiant,
-                    "entreprise": entreprise, "dates": dates,
-                    "tuteur_entreprise": tuteur_entreprise or "Non renseigné",
-                    "referent_pedagogique": referent_pedagogique or "Non renseigné",
-                    "description": description or "Non renseigné",
-                }
+                params = {"nom": nom, "numero_etudiant": numero_etudiant, "entreprise": entreprise, "dates": dates, "tuteur_entreprise": tuteur_entreprise or "Non renseigné", "referent_pedagogique": referent_pedagogique or "Non renseigné", "description": description or "Non renseigné"}
 
             try:
-                with st.spinner("Génération..."):
+                with st.spinner("✨ Génération..."):
                     result = call_generate(doc_type, params)
                 text = result.get("text", "")
-                st.text_area("Aperçu", text, height=300)
+                
+                st.success("✅ Document généré avec succès!")
+                st.markdown("---")
+                st.text_area("📖 Aperçu", text, height=300)
+                
                 pdf_bytes = download_pdf(doc_type, params)
-                st.download_button(
-                    "📥 Télécharger PDF",
-                    data=pdf_bytes,
-                    file_name=f"{doc_type}.pdf",
-                    mime="application/pdf",
-                )
+                col1, col2 = st.columns([1, 2])
+                with col1:
+                    st.download_button("📥 Télécharger PDF", data=pdf_bytes, file_name=f"{doc_type}_{numero_etudiant}.pdf", mime="application/pdf", use_container_width=True)
             except Exception as e:
                 err_msg = str(e)
                 if hasattr(e, "response") and e.response is not None:
@@ -206,25 +337,52 @@ elif page == "Générer un document":
                     except Exception:
                         if e.response.text:
                             err_msg = e.response.text[:500]
-                st.error(f"Erreur: {err_msg}")
+                st.error(f"❌ Erreur: {err_msg}")
 
 else:
-    st.subheader("À propos")
-    st.markdown("""
-    **deepFluxUniHelp** est un assistant IA pour les universités qui :
-    - Centralise les documents officiels
-    - Répond aux questions via LLM + RAG
-    - Génère des documents administratifs standardisés
+    st.markdown("### ℹ️ À propos")
 
-    **Utilisation** : indexez d'abord vos documents via l'API (`POST /documents/ingest-directory`)
-    ou le script `python scripts/ingest_sample.py`, puis posez vos questions.
-    """)
-
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("**🎯 Pourquoi deepFluxUniHelp?**")
+        st.markdown("""
+        T'as des questions administratives? Des documents à faire? C'est stressant!
+        
+        **deepFluxUniHelp** c'est ton assistant perso qui:
+        - ✅ Répond à tes questions 24/7
+        - ✅ Génère tes documents officieux
+        - ✅ T'aide avec l'inscription, attestations, stages...
+        """)
+    
+    with col2:
+        st.markdown("**⚡ Comment ça marche?**")
+        st.markdown("""
+        1️⃣ Tu poses une question → **Chat**
+        2️⃣ Tu crées un document → **Documents**
+        3️⃣ Tu télécharges en PDF → **Prêt!**
+        
+        **Thèmes:** Inscription, Attestations, Stages, Bourses, Rattrapages
+        """)
+    
+    st.markdown("---")
+    
+    st.markdown("**🚀 Mise en route:**")
+    st.code("python scripts/ingest_sample.py", language="bash")
+    st.markdown("Puis utilise le Chat et Générer des documents!")
+    
+    st.markdown("---")
+    
+    st.info("💡 **Powered by:** LLM + RAG (IA intelligente sur tes documents)", icon="⚙️")
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("**Thématiques**")
-st.sidebar.markdown("- Inscription")
-st.sidebar.markdown("- Attestations")
-st.sidebar.markdown("- Stages")
-st.sidebar.markdown("- Bourses")
-st.sidebar.markdown("- Rattrapages")
+st.sidebar.markdown("**💬 Thèmes couverts:**")
+st.sidebar.markdown("""
+🎓 Inscription
+📄 Attestations
+🏢 Stages
+💰 Bourses
+📝 Rattrapages
+⚖️ Réclamations
+""")
+
