@@ -5,24 +5,23 @@ ChromaDB vector store with sentence-transformers embeddings
 from pathlib import Path
 
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_core.retrievers import BaseRetriever
 
 import os
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
+os.environ["SAFETENSORS_FAST_DISABLE"] = "1"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 from backend.app.core.config import settings
 
 COLLECTION_NAME = "university_docs"
 
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 
-def get_embeddings() -> HuggingFaceEmbeddings:
-    """Create HuggingFace embeddings (sentence-transformers)."""
-    return HuggingFaceEmbeddings(
-        model_name=settings.EMBEDDING_MODEL,
-        model_kwargs={"device": "cpu"},
-    )
+def get_embeddings() -> FastEmbedEmbeddings:
+    """Create lightweight FastEmbed embeddings to prevent OOM crash."""
+    return FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
 
 

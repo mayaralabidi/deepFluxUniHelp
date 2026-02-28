@@ -9,16 +9,16 @@
 
 | Phase | Durée | Statut |
 |-------|-------|--------|
-| **Phase 1 – Conception** | 1–2 semaines | ✅ Terminée |
-| Phase 2 – Base documentaire | 1–2 semaines | ✅ Terminée |
-| Phase 3 – Assistant | 2–3 semaines | ✅ Terminée |
-| Phase 4 – Génération | 1–2 semaines | ✅ Terminée |
-| Phase 5 – Intégration | 1 semaine | ✅ Terminée |
-| Phase 6 – Livrables | 1 semaine | À venir |
+| **Phase 1 – Conception** | ✅ Terminée |
+| Phase 2 – Base documentaire | ✅ Terminée |
+| Phase 3 – Assistant | ✅ Terminée |
+| Phase 4 – Génération | ✅ Terminée |
+| Phase 5 – Intégration | ✅ Terminée |
+| Phase 6 – Livrables | À venir |
 
 ---
 
-## Phase 1 – Conception (1–2 semaines)
+## Phase 1 – Conception 
 
 ### Objectifs
 - Finaliser les spécifications et choix techniques
@@ -43,7 +43,7 @@
 
 ---
 
-## Phase 2 – Base documentaire (1–2 semaines)
+## Phase 2 – Base documentaire  
 
 ### Objectifs
 - Pipeline d'ingestion des documents (PDF, DOCX, TXT)
@@ -67,7 +67,7 @@
 
 ---
 
-## Phase 3 – Assistant (2–3 semaines)
+## Phase 3 – Assistant  
 
 ### Objectifs
 - API de chat avec RAG
@@ -91,7 +91,7 @@
 
 ---
 
-## Phase 4 – Génération (1–2 semaines)
+## Phase 4 – Génération  
 
 ### Objectifs
 - Modèles de documents (attestation, réclamation, convention stage)
@@ -113,7 +113,7 @@
 
 ---
 
-## Phase 5 – Intégration (1 semaine)
+## Phase 5 – Intégration  
 
 ### Objectifs
 - Tests end-to-end
@@ -130,7 +130,7 @@
 
 ---
 
-## Phase 6 – Livrables (1 semaine)
+## Phase 6 – Livrables  
 
 ### Objectifs
 - Vidéo de démonstration

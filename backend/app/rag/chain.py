@@ -68,13 +68,10 @@ def get_rag_chain():
 
     prompt = ChatPromptTemplate.from_template(SYSTEM_PROMPT)
 
+    # Simplified chain to just format the prompt and call the LLM
+    # The context will be passed explicitly during invoke()
     _rag_chain = (
-        {
-            "context": _retriever | format_docs,
-            "question": lambda x: x["question"] if isinstance(x, dict) else x,
-            "conversation_history": lambda x: x.get("conversation_history", "") if isinstance(x, dict) else "",
-        }
-        | prompt
+        prompt
         | llm
         | StrOutputParser()
     )
@@ -112,12 +109,17 @@ def invoke_rag(
         Tuple of (answer, sources) where sources is list of (content, source_path) tuples
     """
     chain, retriever = get_rag_chain()
+    
+    # Manually invoke retriever to get docs
     docs = retriever.invoke(question)
+    context = format_docs(docs)
 
     # Format conversation history for the prompt
     conversation_history = _format_conversation_history(recent_messages)
 
+    # Invoke chain with explicit context
     answer = chain.invoke({
+        "context": context,
         "question": question,
         "conversation_history": conversation_history,
     })

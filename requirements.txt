@@ -8,7 +8,8 @@ python-multipart>=0.0.6
 
 # Authentication & Security
 python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
+passlib>=1.7.4
+bcrypt>=4.0.1
 python-multipart>=0.0.6
 
 # Database (SQLAlchemy + SQLite/async)
@@ -35,7 +36,7 @@ streamlit>=1.29.0
 
 # Utilities
 python-dotenv>=1.0.0
-pydantic>=2.0.0
+pydantic[email]>=2.0.0
 pydantic-extra-types>=2.0.0
 reportlab>=4.0.0
 httpx>=0.25.0

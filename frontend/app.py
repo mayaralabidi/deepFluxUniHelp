@@ -27,160 +27,390 @@ st.set_page_config(
 # Custom CSS Styling
 st.markdown("""
 <style>
-    /* Main theme colors */
-    :root {
-        --primary: #1f77b4;
-        --secondary: #ff7f0e;
-        --success: #2ca02c;
-        --danger: #d62728;
-    }
-    
-    /* Sidebar styling - Dark purple gradient */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
-    }
-    
-    /* Sidebar text styling */
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
-        color: white !important;
-    }
-    
-    [data-testid="stSidebar"] p {
-        color: white !important;
-        margin: 0px !important;
-        padding: 0px !important;
-    }
-    
-    [data-testid="stSidebar"] button {
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    
-    /* Remove extra spacing in sidebar */
-    [data-testid="stSidebar"] > div {
-        padding-top: 0.5rem !important;
-    }
-    
-    /* Sidebar dividers */
-    [data-testid="stSidebar"] hr {
-        margin: 0.5rem 0 !important;
-        border-color: rgba(255, 255, 255, 0.2) !important;
-    }
-    
-    /* Header styling */
-    .header-container {
-        display: flex;
-        align-items: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
-    
-    .header-container h1 {
-        margin: 0;
-        font-size: 2em;
-    }
-    
-    .header-container p {
-        margin: 5px 0 0 0;
-        font-size: 0.9em;
-        opacity: 0.9;
-    }
-    
-    /* Card styling */
-    .card {
-        background-color: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 20px;
-        margin: 10px 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    /* Menu styling */
-    .menu-container {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-    
-    .menu-button {
-        padding: 10px 15px;
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        background-color: #f0f0f0;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-    
-    .menu-button:hover {
-        background-color: #e0e0e0;
-    }
-    
-    .menu-button.active {
-        background-color: #667eea;
-        color: white;
-        border-color: #667eea;
-    }
-    
-    /* Message styling */
-    .message-user {
-        background-color: #e3f2fd;
-        border-left: 4px solid #667eea;
-        padding: 10px;
-        border-radius: 5px;
-        margin: 5px 0;
-    }
-    
-    .message-assistant {
-        background-color: #f5f5f5;
-        border-left: 4px solid #666;
-        padding: 10px;
-        border-radius: 5px;
-        margin: 5px 0;
-    }
-    
-    /* Metric card styling */
-    .metric-card {
-        background: white;
-        border-radius: 8px;
-        padding: 15px;
-        text-align: center;
-        border: 1px solid #e0e0e0;
-    }
-    
-    .metric-value {
-        font-size: 1.8em;
-        font-weight: bold;
-        color: #667eea;
-    }
-    
-    .metric-label {
-        font-size: 0.9em;
-        color: #666;
-        margin-top: 5px;
-    }
-    
-    /* User info card - compact styling */
-    .user-info-card {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-left: 4px solid #667eea;
-        padding: 8px 12px;
-        border-radius: 5px;
-        margin-bottom: 0.5rem;
-        color: white;
-        font-size: 0.85em;
-        line-height: 1.3;
-    }
-    
-    .user-info-card strong {
-        display: block;
-        font-size: 0.95em;
-        margin-bottom: 2px;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+/* Global resets & fonts */
+* {
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+}
+body, .stApp {
+    background-color: #0F1117 !important;
+    color: #F0F2F8 !important;
+}
+
+/* Hide Streamlit default elements */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+.stDeployButton {display: none;}
+.block-container {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+}
+
+/* Smooth scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0F1117; }
+::-webkit-scrollbar-thumb { background: #6C63FF; border-radius: 10px; }
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background-color: #161B27 !important;
+    border-right: 1px solid #2A3142 !important;
+}
+section[data-testid="stSidebar"] { 
+    width: 280px !important; 
+    min-width: 280px !important; 
+    max-width: 280px !important;
+}
+/* Hide sidebar toggle arrow */
+[data-testid="collapsedControl"] { display: none; }
+
+/* User profile card (top of sidebar) */
+.user-info-card {
+    background: linear-gradient(135deg, #1E2433, #252D40);
+    border: 1px solid #2A3142;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.user-avatar {
+    background: linear-gradient(135deg, #6C63FF, #00D4AA);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+}
+.user-details {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.user-name {
+    font-size: 14px;
+    color: #F0F2F8;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+.user-email {
+    font-size: 11px;
+    color: #8B95A8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+}
+.role-badge {
+    border-radius: 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    display: inline-block;
+    width: fit-content;
+}
+.role-badge.student { background: #6C63FF22; color: #6C63FF; border: 1px solid #6C63FF44; }
+.role-badge.staff { background: #00D4AA22; color: #00D4AA; border: 1px solid #00D4AA44; }
+.role-badge.admin { background: #FF475722; color: #FF4757; border: 1px solid #FF475744; }
+
+/* Section labels */
+.section-label {
+    font-size: 10px;
+    color: #4A5568 !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    margin-top: 16px;
+}
+
+/* Nav Buttons generated natively by Streamlit in Sidebar */
+[data-testid="stSidebar"] button[kind="secondary"] {
+    width: 100%;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    background: transparent !important;
+    color: #8B95A8 !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    cursor: pointer !important;
+}
+[data-testid="stSidebar"] button[kind="secondary"]:hover {
+    background: #1E2433 !important;
+    color: #F0F2F8 !important;
+    border-left: 3px solid #6C63FF !important;
+}
+
+[data-testid="stSidebar"] button[kind="primary"] {
+    width: 100%;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    background: linear-gradient(90deg, #6C63FF15, transparent) !important;
+    color: #6C63FF !important;
+    border: none !important;
+    border-left: 3px solid #6C63FF !important;
+    box-shadow: none !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+
+/* New Conversation button explicitly inside sidebar */
+[data-testid="stSidebar"] div.stButton > button[key="new_conv"] {
+    background: linear-gradient(135deg, #6C63FF, #8B5CF6) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    border: none !important;
+    justify-content: center !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+}
+[data-testid="stSidebar"] div.stButton > button[key="new_conv"]:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 15px #6C63FF44 !important;
+}
+
+/* Base button primary anywhere but sidebar */
+div.stButton > button[kind="primary"]:not([key="new_conv"]) {
+    background: linear-gradient(135deg, #6C63FF, #8B5CF6) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+div.stButton > button[kind="primary"]:not([key="new_conv"]):hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 15px #6C63FF44 !important;
+}
+
+/* Conversation list items via streamlit custom columns/buttons */
+.conv-item {
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 4px;
+    color: #F0F2F8;
+    background: transparent;
+}
+.conv-item:hover { background: #1E2433; }
+.conv-item.active { background: #1E2433; border-left: 3px solid #6C63FF; }
+
+/* Dividers */
+hr, [data-testid="stSidebar"] hr {
+    border: none !important;
+    border-top: 1px solid #2A3142 !important;
+    margin: 12px 0 !important;
+}
+
+/* Header section */
+.main-header {
+    font-size: 28px;
+    font-weight: 800;
+    color: #F0F2F8;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+.header-subtitle { font-size: 14px; color: #8B95A8; margin-bottom: 12px; }
+.header-divider {
+    background: linear-gradient(90deg, #6C63FF, #00D4AA, transparent);
+    height: 2px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+}
+
+/* Chat messages area */
+.chat-container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-user-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    animation: slideUp 0.3s ease;
+}
+.message-user {
+    background: linear-gradient(135deg, #6C63FF, #8B5CF6);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    padding: 12px 16px;
+    max-width: 65%;
+    box-shadow: 0 4px 12px #6C63FF33;
+}
+.msg-timestamp-user {
+    font-size: 10px;
+    color: #ffffff66;
+    text-align: right;
+    margin-top: 4px;
+}
+
+.message-assistant-wrap {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 16px;
+    animation: slideUp 0.3s ease;
+    padding-left: 20px;
+}
+.message-assistant {
+    background: #1E2433;
+    border: 1px solid #2A3142;
+    color: #F0F2F8;
+    border-radius: 18px 18px 18px 4px;
+    padding: 14px 18px;
+    max-width: 70%;
+    position: relative;
+}
+.assistant-avatar {
+    position: absolute;
+    top: -12px;
+    left: -20px;
+    font-size: 24px;
+    background: #161B27;
+    border-radius: 50%;
+    padding: 2px;
+}
+.msg-timestamp-asst {
+    font-size: 10px;
+    color: #4A5568;
+    margin-top: 4px;
+}
+
+/* Empty state */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    animation: pulse 2s infinite ease-in-out;
+}
+.empty-heading { font-size: 18px; color: #F0F2F8; font-weight: 600; margin-bottom: 8px; }
+.empty-subtext { font-size: 14px; color: #8B95A8; max-width: 320px; margin: 0 auto; }
+
+/* Sources and Feedback */
+.sources-chip {
+    cursor: pointer;
+    font-size: 12px;
+    color: #8B95A8;
+}
+.stExpander {
+    background-color: #0F1117 !important;
+    border: 1px solid #2A3142 !important;
+    border-radius: 8px !important;
+}
+.source-pill {
+    background: #6C63FF15;
+    color: #6C63FF;
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-block;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+/* Auth Pages */
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 5vh;
+}
+.auth-card {
+    background: #1E2433;
+    border: 1px solid #2A3142;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+}
+.auth-logo { font-size: 40px; text-align: center; margin-bottom: 16px; }
+.auth-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6C63FF, #00D4AA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+.auth-subtitle { text-align: center; font-size: 12px; color: #8B95A8; margin-bottom: 32px; }
+
+/* Streamlit Inputs */
+.stTextInput input, .stTextArea textarea, .stSelectbox > div > div {
+    background-color: #1E2433 !important;
+    border: 1px solid #2A3142 !important;
+    border-radius: 14px !important;
+    color: #F0F2F8 !important;
+}
+.stTextInput input:focus, .stTextArea textarea:focus, .stSelectbox > div > div:focus {
+    border-color: #6C63FF !important;
+    box-shadow: 0 0 0 3px #6C63FF22 !important;
+}
+
+/* Chat Input Override */
+.stChatInputContainer {
+    background-color: #161B27 !important;
+    border-top: 1px solid #2A3142 !important;
+}
+.stChatInputContainer > div {
+    background-color: #1E2433 !important;
+    border: 1px solid #2A3142 !important;
+    border-radius: 14px !important;
+}
+
+/* Metrics and Cards */
+.metric-card-new {
+    background: #1E2433;
+    border: 1px solid transparent;
+    background-image: linear-gradient(#1E2433, #1E2433), linear-gradient(135deg, #2A3142, #6C63FF44);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+.metric-value-new { font-size: 2em; font-weight: 800; color: #F0F2F8; }
+.metric-label-new { font-size: 0.9em; color: #8B95A8; margin-top: 5px; }
+
+.stDataFrame { background-color: #161B27; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -216,7 +446,8 @@ def api_request(
     endpoint: str,
     data: Optional[dict] = None,
     token: Optional[str] = None,
-) -> tuple[bool, dict | None]:
+    return_raw: bool = False,
+) -> tuple[bool, dict | bytes | None]:
     """Make API request with error handling."""
     headers = {}
     if token:
@@ -237,6 +468,8 @@ def api_request(
             return False, {"error": f"Unknown method: {method}"}
         
         if resp.status_code in [200, 201]:
+            if return_raw:
+                return True, resp.content
             return True, resp.json()
         elif resp.status_code == 401:
             st.session_state.token = None
@@ -405,12 +638,12 @@ def get_generate_types() -> Optional[list]:
     return response.get("types") if success else []
 
 
-def generate_document(doc_type: str) -> Optional[dict]:
+def generate_document(doc_type: str, params: dict) -> Optional[dict]:
     """Generate a document of specified type."""
     success, response = api_request(
         "POST",
         "/generate",
-        {"doc_type": doc_type},
+        {"doc_type": doc_type, "params": params},
         token=st.session_state.token,
     )
     
@@ -422,19 +655,24 @@ def generate_document(doc_type: str) -> Optional[dict]:
     return None
 
 
-def generate_pdf(doc_type: str) -> Optional[bytes]:
+def generate_pdf(doc_type: str, params: dict) -> Optional[bytes]:
     """Generate a PDF document of specified type."""
     success, response = api_request(
         "POST",
         "/generate/pdf",
-        {"doc_type": doc_type},
+        {"doc_type": doc_type, "params": params},
         token=st.session_state.token,
+        return_raw=True,
     )
     
     if success:
         return response
     
-    error_msg = response.get("detail") or response.get("error") or "PDF generation failed"
+    if isinstance(response, dict):
+        error_msg = response.get("detail") or response.get("error") or "PDF generation failed"
+    else:
+        error_msg = "PDF generation failed"
+        
     st.error(f"Error: {error_msg}")
     return None
 
@@ -444,36 +682,33 @@ def generate_pdf(doc_type: str) -> Optional[bytes]:
 # ============================================================================
 def page_login():
     """User login page."""
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.markdown('<div class="auth-container">', unsafe_allow_html=True)
     
-    with col2:
-        st.markdown("""
-        <div class="header-container">
-            <h1>🎓 DeepFluxUniHelp</h1>
-            <p>University Assistant with Retrieval-Augmented Generation</p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+        <div class="auth-card">
+            <div class="auth-logo">🎓</div>
+            <div class="auth-title">deepFluxUniHelp</div>
+            <div class="auth-subtitle">University Administrative Assistant</div>
+    """, unsafe_allow_html=True)
+    
+    with st.form("login_form"):
+        email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
+        password = st.text_input("🔐 Password", type="password")
         
-        st.subheader("🔐 Login to Your Account")
+        submitted = st.form_submit_button("🔓 Login", use_container_width=True, type="primary")
         
-        with st.form("login_form"):
-            email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
-            password = st.text_input("🔐 Password", type="password")
-            
-            col_submit, col_empty = st.columns([1, 2])
-            with col_submit:
-                submitted = st.form_submit_button("🔓 Login", use_container_width=True)
-            
-            if submitted and email and password:
-                if login(email, password):
-                    st.rerun()
+        if submitted and email and password:
+            if login(email, password):
+                st.rerun()
+    
+    st.divider()
+    
+    st.markdown("<div style='text-align: center; font-size: 14px; color: #8B95A8; margin-bottom: 8px;'>Don't have an account?</div>", unsafe_allow_html=True)
+    if st.button("📝 Create Account", use_container_width=True):
+        st.session_state.auth_page = "register"
+        st.rerun()
         
-        st.divider()
-        
-        st.markdown("### Don't have an account?")
-        if st.button("📝 Create Account", use_container_width=True):
-            st.session_state.auth_page = "register"
-            st.rerun()
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
 
 # ============================================================================
@@ -481,45 +716,42 @@ def page_login():
 # ============================================================================
 def page_register():
     """User registration page."""
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.markdown('<div class="auth-container">', unsafe_allow_html=True)
     
-    with col2:
-        st.markdown("""
-        <div class="header-container">
-            <h1>🎓 DeepFluxUniHelp</h1>
-            <p>University Assistant with Retrieval-Augmented Generation</p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+        <div class="auth-card">
+            <div class="auth-logo">🎓</div>
+            <div class="auth-title">deepFluxUniHelp</div>
+            <div class="auth-subtitle">University Administrative Assistant</div>
+    """, unsafe_allow_html=True)
+    
+    with st.form("register_form"):
+        email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
+        full_name = st.text_input("👤 Full Name", placeholder="John Doe")
+        password = st.text_input("🔐 Password", type="password", help="Minimum 8 characters")
+        password_confirm = st.text_input("🔐 Confirm Password", type="password")
         
-        st.subheader("📝 Create Your Account")
+        submitted = st.form_submit_button("✅ Register", use_container_width=True, type="primary")
         
-        with st.form("register_form"):
-            email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
-            full_name = st.text_input("👤 Full Name", placeholder="John Doe")
-            password = st.text_input("🔐 Password", type="password", help="Minimum 8 characters")
-            password_confirm = st.text_input("🔐 Confirm Password", type="password")
-            
-            col_submit, col_empty = st.columns([1, 2])
-            with col_submit:
-                submitted = st.form_submit_button("✅ Register", use_container_width=True)
-            
-            if submitted:
-                if not email or not full_name or not password:
-                    st.error("❌ All fields are required")
-                elif len(password) < 8:
-                    st.error("❌ Password must be at least 8 characters")
-                elif password != password_confirm:
-                    st.error("❌ Passwords don't match")
-                elif register(email, password, full_name):
-                    st.session_state.auth_page = "login"
-                    st.rerun()
+        if submitted:
+            if not email or not full_name or not password:
+                st.error("❌ All fields are required")
+            elif len(password) < 8:
+                st.error("❌ Password must be at least 8 characters")
+            elif password != password_confirm:
+                st.error("❌ Passwords don't match")
+            elif register(email, password, full_name):
+                st.session_state.auth_page = "login"
+                st.rerun()
+    
+    st.divider()
+    
+    st.markdown("<div style='text-align: center; font-size: 14px; color: #8B95A8; margin-bottom: 8px;'>Already have an account?</div>", unsafe_allow_html=True)
+    if st.button("🔑 Back to Login", use_container_width=True):
+        st.session_state.auth_page = "login"
+        st.rerun()
         
-        st.divider()
-        
-        st.markdown("### Already have an account?")
-        if st.button("🔑 Back to Login", use_container_width=True):
-            st.session_state.auth_page = "login"
-            st.rerun()
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
 
 # ============================================================================
@@ -538,27 +770,35 @@ def page_auth():
 # ============================================================================
 def page_chat():
     """Main chat interface."""
-    st.title("💬 Chat with Assistant")
-    st.markdown("Ask questions and get answers powered by your university documents")
+    st.markdown("""
+        <div class="main-header">
+            <span style="color: #6C63FF; text-shadow: 0 0 10px #6C63FF44;">💬</span> Chat with Assistant
+        </div>
+        <div class="header-subtitle">Ask questions and get answers powered by your university documents</div>
+        <div class="header-divider"></div>
+    """, unsafe_allow_html=True)
     
     # Sidebar: Conversation History
     with st.sidebar:
-        st.header("📚 Conversations")
+        st.markdown('<div class="section-label">Conversations</div>', unsafe_allow_html=True)
         
-        if st.button("➕ New Conversation", use_container_width=True):
+        if st.button("➕ New Conversation", key="new_conv", use_container_width=True, type="primary"):
             st.session_state.current_conversation_id = None
             st.session_state.messages = []
             st.rerun()
         
-        st.divider()
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         
         # Load recent conversations
         conv_data = get_conversations(limit=10)
         if conv_data and conv_data.get("conversations"):
             for conv in conv_data["conversations"]:
-                col1, col2 = st.columns([4, 1])
+                is_active = (conv["id"] == st.session_state.current_conversation_id)
+                active_class = "active" if is_active else ""
+                
+                col1, col2 = st.columns([5, 1])
                 with col1:
-                    if st.button(f"💬 {conv['title'][:30]}", key=f"conv_{conv['id']}", use_container_width=True):
+                    if st.button(f"💬 {conv['title'][:25]}", key=f"conv_{conv['id']}", use_container_width=True):
                         st.session_state.current_conversation_id = conv["id"]
                         st.rerun()
                 with col2:
@@ -567,56 +807,75 @@ def page_chat():
                             st.success("Deleted!")
                             st.rerun()
         else:
-            st.info("📭 No conversations yet. Start a new one!")
-    
-    # Main chat area
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown("**Active Conversation**")
-    with col2:
-        if st.session_state.current_conversation_id:
-            st.caption(f"ID: {str(st.session_state.current_conversation_id)[:8]}...")
+            st.markdown("<div style='font-size: 12px; color: #4A5568;'><br/>📭 No conversations yet.</div>", unsafe_allow_html=True)
     
     # Message display area
-    with st.container(height=400):
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    
+    messages_rendered = False
+    with st.container():
         if st.session_state.current_conversation_id:
             conv_data = get_conversation_messages(str(st.session_state.current_conversation_id))
-            if conv_data and conv_data.get("messages"):
+            if conv_data and conv_data.get("messages") and len(conv_data["messages"]) > 0:
+                messages_rendered = True
                 for msg in conv_data["messages"]:
                     if msg["role"] == "user":
                         st.markdown(f"""
-                        <div class="message-user">
-                            <strong>👤 You:</strong> {msg['content']}
+                        <div class="message-user-wrap">
+                            <div class="message-user">
+                                {msg['content']}
+                                <div class="msg-timestamp-user">Just now</div>
+                            </div>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
                         st.markdown(f"""
-                        <div class="message-assistant">
-                            <strong>🤖 Assistant:</strong> {msg['content']}
+                        <div class="message-assistant-wrap">
+                            <div class="message-assistant">
+                                <div class="assistant-avatar">🤖</div>
+                                {msg['content']}
+                                <div class="msg-timestamp-asst">Assistant</div>
+                            </div>
                         </div>
                         """, unsafe_allow_html=True)
                         
                         if msg.get("sources"):
-                            st.caption("📄 Sources:")
-                            for source in msg["sources"][:3]:
-                                st.caption(f"  • {source}")
-    
-    # Input area
-    st.divider()
-    
-    with st.form("message_form"):
-        col1, col2 = st.columns([5, 1])
-        with col1:
-            message = st.text_input("💬 Your question:", placeholder="Ask anything about university documents...")
-        with col2:
-            submitted = st.form_submit_button("Send ➤", use_container_width=True)
+                            with st.expander(f"📎 {len(msg['sources'])} sources"):
+                                st.markdown('<div class="sources-content">', unsafe_allow_html=True)
+                                for source in msg["sources"]:
+                                    st.markdown(f'<span class="source-pill">{source}</span>', unsafe_allow_html=True)
+                                st.markdown('</div>', unsafe_allow_html=True)
+                        
+                        # Feedback buttons under assistant
+                        st.markdown(f"""
+                        <div class="message-assistant-wrap" style="margin-top: -12px; margin-bottom: 24px; padding-left: 20px;">
+                            <div class="feedback-btns" style="display: flex; gap: 8px;">
+                                <button class="feedback-btn up" title="Helpful" style="background: transparent; border: none; cursor: pointer; color: #4A5568;">👍</button>
+                                <button class="feedback-btn down" title="Not Helpful" style="background: transparent; border: none; cursor: pointer; color: #4A5568;">👎</button>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+    if not messages_rendered:
+        st.markdown("""
+        <div class="empty-state">
+            <div class="empty-icon">🎓</div>
+            <div class="empty-heading">Start a conversation</div>
+            <div class="empty-subtext">Ask anything about your university procedures, deadlines, or documents.</div>
+        </div>
+        """, unsafe_allow_html=True)
         
-        if submitted and message:
-            with st.spinner("🔄 Processing..."):
-                result = send_message(message, st.session_state.current_conversation_id)
-                if result:
-                    st.session_state.current_conversation_id = result.get("conversation_id")
-                    st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Input area via st.chat_input
+    prompt = st.chat_input("💬 Ask anything about university documents...")
+    
+    if prompt:
+        with st.spinner("🔄 Thinking..."):
+            result = send_message(prompt, st.session_state.current_conversation_id)
+            if result:
+                st.session_state.current_conversation_id = result.get("conversation_id")
+                st.rerun()
 
 
 # ============================================================================
@@ -624,8 +883,13 @@ def page_chat():
 # ============================================================================
 def page_analytics():
     """Analytics dashboard (staff+ only)."""
-    st.title("📊 Analytics Dashboard")
-    st.markdown("Track usage and performance metrics")
+    st.markdown("""
+        <div class="main-header">
+            <span style="color: #00D4AA; text-shadow: 0 0 10px #00D4AA44;">📊</span> Analytics Dashboard
+        </div>
+        <div class="header-subtitle">Track usage and performance metrics</div>
+        <div class="header-divider" style="background: linear-gradient(90deg, #00D4AA, #6C63FF, transparent);"></div>
+    """, unsafe_allow_html=True)
     
     # Check role
     if st.session_state.user.get("role") == "student":
@@ -658,23 +922,24 @@ def page_analytics():
         for icon, label, value, col in metrics:
             with col:
                 st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size: 1.5em;">{icon}</div>
-                    <div class="metric-value">{value}</div>
-                    <div class="metric-label">{label}</div>
+                <div class="metric-card-new">
+                    <div style="font-size: 1.8em; margin-bottom: 8px;">{icon}</div>
+                    <div class="metric-value-new">{value}</div>
+                    <div class="metric-label-new">{label}</div>
                 </div>
                 """, unsafe_allow_html=True)
     else:
         st.warning("⚠️ No analytics data available")
 
-
-# ============================================================================
-# PAGE: GENERATE DOCUMENTS
-# ============================================================================
 def page_generate():
     """Document generation page."""
-    st.title("📄 Generate Documents")
-    st.markdown("Create custom documents from your chat history")
+    st.markdown("""
+        <div class="main-header">
+            <span style="color: #00D4AA; text-shadow: 0 0 10px #00D4AA44;">📄</span> Generate Documents
+        </div>
+        <div class="header-subtitle">Create custom documents from your chat history</div>
+        <div class="header-divider" style="background: linear-gradient(90deg, #00D4AA, #6C63FF, transparent);"></div>
+    """, unsafe_allow_html=True)
     
     doc_types = get_generate_types()
     
@@ -685,54 +950,76 @@ def page_generate():
     st.info("📋 Select document type and format below")
     st.divider()
     
-    # Document type selector
-    selected_type = st.selectbox("📋 Choose Document Type:", doc_types, index=0)
+    # Document type selector and form
+    selected_type = st.selectbox("📋 Type de document *", doc_types, index=0)
     
     st.divider()
     
-    # Generation options
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("📄 Text Format")
-        st.markdown("Download as plain text (.txt)")
+    with st.form("generation_form"):
+        col_form1, col_form2 = st.columns(2)
         
-        if st.button("Generate Text Document", use_container_width=True, key="btn_text"):
-            with st.spinner("✨ Generating document..."):
-                result = generate_document(selected_type)
-                if result and "content" in result:
-                    st.success(f"✅ {selected_type} generated successfully!")
+        with col_form1:
+            nom_complet = st.text_input("👤 Nom complet *", placeholder="Jean Dupont")
+            type_attestation = st.text_input("📄 Type d'attestation", placeholder="Inscription (si pertinent)")
+            
+        with col_form2:
+            num_etudiant = st.text_input("🆔 N° étudiant *", placeholder="2024001234")
+            date_doc = st.text_input("📅 Date", value=datetime.today().strftime('%d/%m/%Y'))
+            
+        motif = st.text_area("📝 Motif (optionnel)", placeholder="Demande pour dossier CAF...")
+        
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+        col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 2])
+        
+        with col_btn1:
+            generate_txt = st.form_submit_button("📄 Générer Texte", use_container_width=True)
+        with col_btn2:
+            generate_pdf_btn = st.form_submit_button("📕 Générer PDF", use_container_width=True)
+            
+    if generate_txt or generate_pdf_btn:
+        if not nom_complet or not num_etudiant:
+            st.error("❌ Le nom complet et le numéro étudiant sont obligatoires.")
+            return
+            
+        params = {
+            "nom_etudiant": nom_complet,
+            "numero_etudiant": num_etudiant,
+            "date": date_doc,
+            "motif": motif,
+        }
+        
+        if type_attestation:
+            params["type_attestation"] = type_attestation
+            
+        if generate_txt:
+            with st.spinner("✨ Génération du document texte..."):
+                result = generate_document(selected_type, params)
+                if result and "text" in result:
+                    st.success(f"✅ {selected_type} généré avec succès !")
                     
-                    # Preview
-                    with st.expander("📖 Preview Content", expanded=True):
-                        st.text_area("Content:", value=result["content"], height=200, disabled=True)
+                    st.markdown("### ─── Aperçu ─────────────────────────────────────────────────────────────")
+                    st.text_area("Aperçu:", value=result["text"], height=300, disabled=True, label_visibility="collapsed")
                     
-                    # Download button
                     st.download_button(
-                        label="⬇️ Download as .txt",
-                        data=result["content"],
+                        label="⬇️ Télécharger TXT",
+                        data=result["text"],
                         file_name=f"{selected_type.lower().replace(' ', '_')}.txt",
                         mime="text/plain",
-                        use_container_width=True
+                        use_container_width=False
                     )
-    
-    with col2:
-        st.subheader("📕 PDF Format")
-        st.markdown("Download as PDF document (.pdf)")
-        
-        if st.button("Generate PDF Document", use_container_width=True, key="btn_pdf"):
-            with st.spinner("✨ Generating PDF..."):
-                result = generate_pdf(selected_type)
-                if result and "pdf_content" in result:
-                    st.success(f"✅ {selected_type} PDF generated successfully!")
                     
-                    # Download button
+        elif generate_pdf_btn:
+            with st.spinner("✨ Génération du PDF..."):
+                result = generate_pdf(selected_type, params)
+                if result:
+                    st.success(f"✅ {selected_type} PDF généré avec succès !")
+                    
                     st.download_button(
-                        label="⬇️ Download as .pdf",
-                        data=result["pdf_content"],
+                        label="⬇️ Télécharger PDF",
+                        data=result,
                         file_name=f"{selected_type.lower().replace(' ', '_')}.pdf",
                         mime="application/pdf",
-                        use_container_width=True
+                        use_container_width=False
                     )
     
     st.divider()
@@ -744,11 +1031,15 @@ def page_generate():
 # ============================================================================
 def page_feedback():
     """Feedback system."""
-    st.title("📝 Feedback System")
-    st.markdown("Help us improve by providing feedback on responses")
+    st.markdown("""
+        <div class="main-header">
+            <span style="color: #FF4757; text-shadow: 0 0 10px #FF475744;">📝</span> Feedback System
+        </div>
+        <div class="header-subtitle">Help us improve by providing feedback on responses</div>
+        <div class="header-divider" style="background: linear-gradient(90deg, #FF4757, #6C63FF, transparent);"></div>
+    """, unsafe_allow_html=True)
     
-    st.subheader("Submit Feedback")
-    st.markdown("Share your thoughts about a specific chat response")
+    st.markdown("### Submit Feedback<br/><span style='font-size: 14px; color: #8B95A8; font-weight: normal;'>Share your thoughts about a specific chat response</span>", unsafe_allow_html=True)
     
     with st.form("feedback_form"):
         chat_log_id = st.text_input("🔍 Chat Log ID:", placeholder="Paste the ID from chat message")
@@ -765,7 +1056,7 @@ def page_feedback():
         comment = st.text_area("💬 Comment (optional):", max_chars=500, placeholder="Tell us what you think...")
         correction = st.text_area("✏️ Correction (optional):", max_chars=1000, placeholder="Suggest a correction...")
         
-        submitted = st.form_submit_button("📤 Submit Feedback", use_container_width=True)
+        submitted = st.form_submit_button("📤 Submit Feedback", use_container_width=True, type="primary")
         
         if submitted:
             if chat_log_id:
@@ -777,7 +1068,7 @@ def page_feedback():
     # Admin feedback review
     if st.session_state.user and st.session_state.user.get("role") == "admin":
         st.divider()
-        st.subheader("📋 Admin: Feedback Review")
+        st.markdown("### 📋 Admin: Feedback Review")
         
         with st.spinner("📊 Loading feedback stats..."):
             feedback_stats = get_feedback_stats()
@@ -787,37 +1078,37 @@ def page_feedback():
             
             with col1:
                 st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size: 1.5em;">📝</div>
-                    <div class="metric-value">{feedback_stats.get('total', 0)}</div>
-                    <div class="metric-label">Total Feedback</div>
+                <div class="metric-card-new">
+                    <div style="font-size: 1.8em; margin-bottom: 8px;">📝</div>
+                    <div class="metric-value-new">{feedback_stats.get('total', 0)}</div>
+                    <div class="metric-label-new">Total Feedback</div>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col2:
                 st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size: 1.5em;">👍</div>
-                    <div class="metric-value">{feedback_stats.get('positive_count', 0)}</div>
-                    <div class="metric-label">Positive</div>
+                <div class="metric-card-new">
+                    <div style="font-size: 1.8em; margin-bottom: 8px;">👍</div>
+                    <div class="metric-value-new">{feedback_stats.get('positive_count', 0)}</div>
+                    <div class="metric-label-new">Positive</div>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col3:
                 st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size: 1.5em;">👎</div>
-                    <div class="metric-value">{feedback_stats.get('negative_count', 0)}</div>
-                    <div class="metric-label">Negative</div>
+                <div class="metric-card-new">
+                    <div style="font-size: 1.8em; margin-bottom: 8px;">👎</div>
+                    <div class="metric-value-new">{feedback_stats.get('negative_count', 0)}</div>
+                    <div class="metric-label-new">Negative</div>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col4:
                 st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size: 1.5em;">😊</div>
-                    <div class="metric-value">{feedback_stats.get('satisfaction_rate', 0):.1f}%</div>
-                    <div class="metric-label">Satisfaction</div>
+                <div class="metric-card-new">
+                    <div style="font-size: 1.8em; margin-bottom: 8px;">😊</div>
+                    <div class="metric-value-new">{feedback_stats.get('satisfaction_rate', 0):.1f}%</div>
+                    <div class="metric-label-new">Satisfaction</div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -866,20 +1157,24 @@ def main():
 def show_navigation():
     """Display navigation sidebar for logged-in users."""
     with st.sidebar:
-        # User info - Compact styling
+        # User info
         if st.session_state.user:
+            initials = st.session_state.user.get('full_name', 'U')[0].upper()
             st.markdown(f"""
             <div class="user-info-card">
-                <strong>👤 {st.session_state.user.get('full_name', 'User')}</strong>
-                📧 {st.session_state.user.get('email', '')}<br>
-                🎯 {st.session_state.user.get('role', '').title()}
+                <div class="user-avatar">{initials}</div>
+                <div class="user-details">
+                    <span class="user-name">{st.session_state.user.get('full_name', 'User')}</span>
+                    <span class="user-email">{st.session_state.user.get('email', '')}</span>
+                    <span class="role-badge {st.session_state.user.get('role', 'student')}">{st.session_state.user.get('role', 'student')}</span>
+                </div>
             </div>
             """, unsafe_allow_html=True)
         
         st.divider()
         
         # Navigation menu
-        st.markdown("#### 🔗 Navigation")
+        st.markdown('<div class="section-label">Navigation</div>', unsafe_allow_html=True)
         
         # Build menu items
         menu_items = {
@@ -892,7 +1187,6 @@ def show_navigation():
         if st.session_state.user and st.session_state.user.get("role") != "student":
             menu_items["📊 Analytics"] = "analytics"
         
-        # Menu buttons - Compact with reduced padding
         for label, page_id in menu_items.items():
             is_active = st.session_state.page == page_id
             button_type = "primary" if is_active else "secondary"
@@ -903,7 +1197,7 @@ def show_navigation():
         
         st.divider()
         
-        # Logout button - Compact
+        # Logout button
         if st.button("🚪 Logout", use_container_width=True, type="secondary"):
             st.session_state.token = None
             st.session_state.user = None
