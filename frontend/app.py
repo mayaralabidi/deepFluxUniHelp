@@ -352,7 +352,8 @@ hr, [data-testid="stSidebar"] hr {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-top: 5vh;
+    min-height: 60vh;
+    padding-top: 2vh;
 }
 .auth-card {
     background: #1E2433;
@@ -361,8 +362,9 @@ hr, [data-testid="stSidebar"] hr {
     padding: 40px;
     width: 100%;
     max-width: 520px;
+    margin: 0 auto;
 }
-.auth-logo { font-size: 40px; text-align: center; margin-bottom: 16px; }
+.auth-logo { font-size: 48px; text-align: center; margin-bottom: 16px; display: block; width: 100%; }
 .auth-title {
     text-align: center;
     font-size: 24px;
@@ -692,33 +694,38 @@ def generate_pdf(doc_type: str, params: dict) -> Optional[bytes]:
 # ============================================================================
 def page_login():
     """User login page."""
-    st.markdown('<div class="auth-container">', unsafe_allow_html=True)
-    
-    st.markdown("""
-        <div class="auth-card">
-            <div class="auth-logo">🎓</div>
-            <div class="auth-title">deepFluxUniHelp</div>
-            <div class="auth-subtitle">University Administrative Assistant</div>
-    """, unsafe_allow_html=True)
-    
-    with st.form("login_form"):
-        email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
-        password = st.text_input("🔐 Password", type="password")
-        
-        submitted = st.form_submit_button("🔓 Login", use_container_width=True, type="primary")
-        
-        if submitted and email and password:
-            if login(email, password):
-                st.rerun()
-    
-    st.divider()
-    
-    st.markdown("<div style='text-align: center; font-size: 14px; color: #8B95A8; margin-bottom: 8px;'>Don't have an account?</div>", unsafe_allow_html=True)
-    if st.button("📝 Create Account", use_container_width=True):
-        st.session_state.auth_page = "register"
-        st.rerun()
-        
-    st.markdown('</div></div>', unsafe_allow_html=True)
+    # Center wrapper
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown("""
+            <div style="text-align:center; margin-bottom: 8px;">
+                <span style="font-size:52px;">🎓</span>
+            </div>
+            <div style="text-align:center; font-size:26px; font-weight:800;
+                        background:linear-gradient(135deg,#6C63FF,#00D4AA);
+                        -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+                        margin-bottom:6px;">deepFluxUniHelp</div>
+            <div style="text-align:center; font-size:13px; color:#8B95A8; margin-bottom:28px;">
+                University Administrative Assistant
+            </div>
+        """, unsafe_allow_html=True)
+
+        with st.form("login_form"):
+            email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
+            password = st.text_input("🔐 Password", type="password")
+
+            submitted = st.form_submit_button("🔓 Login", use_container_width=True, type="primary")
+
+            if submitted and email and password:
+                if login(email, password):
+                    st.rerun()
+
+        st.divider()
+
+        st.markdown("<div style='text-align:center; font-size:14px; color:#8B95A8; margin-bottom:8px;'>Don't have an account?</div>", unsafe_allow_html=True)
+        if st.button("📝 Create Account", use_container_width=True):
+            st.session_state.auth_page = "register"
+            st.rerun()
 
 
 # ============================================================================
@@ -726,42 +733,46 @@ def page_login():
 # ============================================================================
 def page_register():
     """User registration page."""
-    st.markdown('<div class="auth-container">', unsafe_allow_html=True)
-    
-    st.markdown("""
-        <div class="auth-card">
-            <div class="auth-logo">🎓</div>
-            <div class="auth-title">deepFluxUniHelp</div>
-            <div class="auth-subtitle">University Administrative Assistant</div>
-    """, unsafe_allow_html=True)
-    
-    with st.form("register_form"):
-        email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
-        full_name = st.text_input("👤 Full Name", placeholder="John Doe")
-        password = st.text_input("🔐 Password", type="password", help="Minimum 8 characters")
-        password_confirm = st.text_input("🔐 Confirm Password", type="password")
-        
-        submitted = st.form_submit_button("✅ Register", use_container_width=True, type="primary")
-        
-        if submitted:
-            if not email or not full_name or not password:
-                st.error("❌ All fields are required")
-            elif len(password) < 8:
-                st.error("❌ Password must be at least 8 characters")
-            elif password != password_confirm:
-                st.error("❌ Passwords don't match")
-            elif register(email, password, full_name):
-                st.session_state.auth_page = "login"
-                st.rerun()
-    
-    st.divider()
-    
-    st.markdown("<div style='text-align: center; font-size: 14px; color: #8B95A8; margin-bottom: 8px;'>Already have an account?</div>", unsafe_allow_html=True)
-    if st.button("🔑 Back to Login", use_container_width=True):
-        st.session_state.auth_page = "login"
-        st.rerun()
-        
-    st.markdown('</div></div>', unsafe_allow_html=True)
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown("""
+            <div style="text-align:center; margin-bottom: 8px;">
+                <span style="font-size:52px;">🎓</span>
+            </div>
+            <div style="text-align:center; font-size:26px; font-weight:800;
+                        background:linear-gradient(135deg,#6C63FF,#00D4AA);
+                        -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+                        margin-bottom:6px;">deepFluxUniHelp</div>
+            <div style="text-align:center; font-size:13px; color:#8B95A8; margin-bottom:28px;">
+                University Administrative Assistant
+            </div>
+        """, unsafe_allow_html=True)
+
+        with st.form("register_form"):
+            email = st.text_input("📧 Email Address", placeholder="your.email@university.edu")
+            full_name = st.text_input("👤 Full Name", placeholder="John Doe")
+            password = st.text_input("🔐 Password", type="password", help="Minimum 8 characters")
+            password_confirm = st.text_input("🔐 Confirm Password", type="password")
+
+            submitted = st.form_submit_button("✅ Register", use_container_width=True, type="primary")
+
+            if submitted:
+                if not email or not full_name or not password:
+                    st.error("❌ All fields are required")
+                elif len(password) < 8:
+                    st.error("❌ Password must be at least 8 characters")
+                elif password != password_confirm:
+                    st.error("❌ Passwords don't match")
+                elif register(email, password, full_name):
+                    st.session_state.auth_page = "login"
+                    st.rerun()
+
+        st.divider()
+
+        st.markdown("<div style='text-align:center; font-size:14px; color:#8B95A8; margin-bottom:8px;'>Already have an account?</div>", unsafe_allow_html=True)
+        if st.button("🔑 Back to Login", use_container_width=True):
+            st.session_state.auth_page = "login"
+            st.rerun()
 
 
 # ============================================================================
@@ -806,16 +817,25 @@ def page_chat():
                 is_active = (conv["id"] == st.session_state.current_conversation_id)
                 active_class = "active" if is_active else ""
                 
-                col1, col2 = st.columns([5, 1])
+                col1, col2, col3 = st.columns([4, 1, 1])
                 with col1:
-                    if st.button(f"💬 {conv['title'][:25]}", key=f"conv_{conv['id']}", use_container_width=True):
+                    if st.button(f"💬 {conv['title'][:20]}", key=f"conv_{conv['id']}", use_container_width=True):
                         st.session_state.current_conversation_id = conv["id"]
                         st.rerun()
                 with col2:
+                    if st.button("📋", key=f"cpid_{conv['id']}", help="Show / Copy conversation ID"):
+                        # Toggle show-ID state
+                        key = f"show_id_{conv['id']}"
+                        st.session_state[key] = not st.session_state.get(key, False)
+                        st.rerun()
+                with col3:
                     if st.button("🗑️", key=f"del_{conv['id']}", help="Delete"):
                         if delete_conversation(conv["id"]):
                             st.success("Deleted!")
                             st.rerun()
+                # Show copyable ID when toggled
+                if st.session_state.get(f"show_id_{conv['id']}", False):
+                    st.code(conv["id"], language=None)
         else:
             st.markdown("<div style='font-size: 12px; color: #4A5568;'><br/>📭 No conversations yet.</div>", unsafe_allow_html=True)
     
@@ -868,10 +888,6 @@ def page_chat():
                                     names.append(str(name))
 
                             if feedback_id:
-                                st.markdown(
-                                    f"<div style='margin: -6px 0 10px 44px; color: #8B95A8; font-size: 12px;'>Feedback ID : <span style='color:#F0F2F8;'>{feedback_id}</span></div>",
-                                    unsafe_allow_html=True,
-                                )
                                 col_a, col_b = st.columns([3, 1])
                                 with col_a:
                                     st.text_input(
@@ -1101,8 +1117,11 @@ def page_feedback():
         
         col1, col2 = st.columns(2)
         with col1:
-            rating = st.radio("👍 How was this response?", 
-                             [("👍 Helpful", 1), ("👎 Not Helpful", -1)])
+            rating = st.radio(
+                "👍 How was this response?",
+                [1, -1],
+                format_func=lambda x: "👍 Helpful" if x == 1 else "👎 Not Helpful",
+            )
         
         with col2:
             category = st.selectbox("📂 Category:", 
