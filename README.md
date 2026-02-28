@@ -8,6 +8,7 @@ deepFluxUniHelp centralise les documents officiels, r?pond aux questions des ?tu
 # Les délivrables
 
 lien de la presentation: https://www.canva.com/design/DAHCl4Fmmy0/TcEDjVMdOWpQFMmSQOXBnw/edit?utm_content=DAHCl4Fmmy0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
 lien de la video demonstrative: https://www.canva.com/design/DAHCmsnWRgU/gD69kSEpXXBAP5iDrg3ZPw/edit?utm_content=DAHCmsnWRgU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
 ## Structure du projet
