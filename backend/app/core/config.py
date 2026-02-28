@@ -16,12 +16,28 @@ load_dotenv(dotenv_path=_env_path)
 class Settings:
     """Application settings"""
 
+    # Debug mode
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
+
     # API
     API_HOST: str = os.getenv("API_HOST", "0.0.0.0")
     API_PORT: int = int(os.getenv("API_PORT", "8000"))
 
+    # Database
+    DATABASE_PATH: str = os.getenv("DATABASE_PATH", "./data/app.db")
+
+    # JWT Authentication
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-min-32-chars")
+    ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))  # 24 hours default
+    
+    # Admin user (created on first run if no users exist)
+    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@university.edu")
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "ChangeMe123!")
+
     # LLM
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "").strip()
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
     LLM_MODEL: str = os.getenv("LLM_MODEL", "llama-3.1-8b-instant")
     LLM_TIMEOUT: int = int(os.getenv("LLM_TIMEOUT", "30"))  # seconds
 
@@ -39,3 +55,4 @@ class Settings:
 
 
 settings = Settings()
+

@@ -18,6 +18,9 @@ Règles importantes:
 - Base-toi UNIQUEMENT sur le contexte fourni. Si le contexte ne contient pas l'information, dis que tu ne peux pas répondre avec certitude et suggère de contacter le secrétariat
 - Cite les sources quand c'est pertinent (nom du document)
 - Sois professionnel et bienveillant
+- Si l'utilisateur continue une conversation précédente, tiens compte de l'historique pour plus de contexte
+
+{conversation_history}
 
 Contexte:
 {context}
@@ -68,7 +71,8 @@ def get_rag_chain():
     _rag_chain = (
         {
             "context": _retriever | format_docs,
-            "question": RunnablePassthrough(),
+            "question": lambda x: x["question"] if isinstance(x, dict) else x,
+            "conversation_history": lambda x: x.get("conversation_history", "") if isinstance(x, dict) else "",
         }
         | prompt
         | llm
@@ -78,20 +82,45 @@ def get_rag_chain():
 
 
 
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
-def invoke_rag(question: str) -> Tuple[str, List[tuple[str, str]]]:
+def _format_conversation_history(messages: Optional[List] = None) -> str:
+    """Format recent conversation messages for context."""
+    if not messages:
+        return ""
+    
+    history_lines = ["Historique récent de la conversation:"]
+    for msg in messages:
+        role = "Étudiant" if msg.role.value == "user" else "Assistant"
+        history_lines.append(f"{role}: {msg.content[:200]}")  # Truncate long messages
+    
+    return "\n".join(history_lines) + "\n\n"
+
+
+def invoke_rag(
+    question: str,
+    recent_messages: Optional[List] = None,
+) -> Tuple[str, List[tuple[str, str]]]:
     """
-    Invoke RAG and return (answer, sources).
+    Invoke RAG with optional conversation history and return (answer, sources).
 
-    ``sources`` is a list of ``(content, source_path)`` tuples.  The
-    function now reuses the cached chain and retriever created by
-    ``get_rag_chain`` to avoid rebuilding on each call.
+    Args:
+        question: Current user question
+        recent_messages: Optional list of recent Message objects for context
+
+    Returns:
+        Tuple of (answer, sources) where sources is list of (content, source_path) tuples
     """
     chain, retriever = get_rag_chain()
     docs = retriever.invoke(question)
 
-    answer = chain.invoke(question)
+    # Format conversation history for the prompt
+    conversation_history = _format_conversation_history(recent_messages)
+
+    answer = chain.invoke({
+        "question": question,
+        "conversation_history": conversation_history,
+    })
 
     sources = [
         (doc.page_content, doc.metadata.get("source", "unknown"))
